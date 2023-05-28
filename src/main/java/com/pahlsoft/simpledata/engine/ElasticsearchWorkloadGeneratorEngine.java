@@ -143,7 +143,8 @@ public class ElasticsearchWorkloadGeneratorEngine implements Engine {
     }
 
     private int calculateSleepDuration() {
-        if (workload.getPeakTime().isEmpty()) {  // Peak time is priority over static time.
+
+        if (workload.getPeakTime() == null) {
             log.debug("Static Sleep Used");
             return workload.getWorkloadSleep();
         } else {

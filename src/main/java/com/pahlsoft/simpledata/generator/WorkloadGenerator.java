@@ -49,6 +49,14 @@ public class WorkloadGenerator {
                         jsonMap.put(field.get("name"),faker.number().randomDouble(2,0,65336));
                     }
                     break;
+                case "double":
+                    if (field.get("range") != null) {
+                        String[] range = field.get("range").split(",");
+                        jsonMap.put(field.get("name"),faker.number().randomDouble(0,Integer.valueOf(range[0]),Integer.valueOf(range[1])));
+                    } else {
+                        jsonMap.put(field.get("name"),faker.number().randomDouble(0,1,1000000000));
+                    }
+                    break;
                 case "boolean":
                     jsonMap.put(field.get("name"),faker.bool().bool());
                     break;
@@ -185,6 +193,8 @@ public class WorkloadGenerator {
                     jsonMap.put(field.get("name"),field.get("value"));
                     break;
                 case "date":
+                case "timestamp":
+                case "record_creation_time":
                     jsonMap.put(field.get("name"),new Date());
                     break;
                 case "timezone":
@@ -221,6 +231,11 @@ public class WorkloadGenerator {
                     Map<String,String> integerField = new HashMap<>();
                     integerField.put("type","integer");
                     propertiesObject.put(field.get("name"),integerField);
+                    break;
+                case "double":
+                    Map<String,String> doubleField = new HashMap<>();
+                    doubleField.put("type","double");
+                    propertiesObject.put(field.get("name"),doubleField);
                     break;
                 case "float":
                 case "random_float_from_list":
@@ -289,6 +304,7 @@ public class WorkloadGenerator {
                     Map<String,String> dateField = new HashMap<>();
                     dateField.put("type","date");
                     propertiesObject.put(field.get("name"),dateField);
+                    break;
                 default:
                     Map<String,String> keywordField = new HashMap<>();
                     keywordField.put("type","keyword");
