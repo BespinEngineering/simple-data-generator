@@ -85,16 +85,16 @@ public class WorkloadGenerator {
                     jsonMap.put(field.get("name"),faker.address().countryCode());
                     break;
                 case "state":
-                    jsonMap.put("state",faker.address().stateAbbr());
+                    jsonMap.put(field.get("name"),faker.address().stateAbbr());
                     break;
                 case "zipcode":
-                    jsonMap.put("name",faker.address().zipCode());
+                    jsonMap.put(field.get("name"),faker.address().zipCode());
                     break;
                 case "geo_point":
                     jsonMap.put("geo_point","{\"lon:\" " + faker.address().longitude() + " }, {\"lat:\" " + faker.address().longitude() + "}");
                     break;
                 case "phone_number":
-                    jsonMap.put("phone_number",faker.phoneNumber().cellPhone());
+                    jsonMap.put(field.get("name"),faker.phoneNumber().cellPhone());
                     break;
                 case "credit_card_number":
                     jsonMap.put(field.get("name"),faker.business().creditCardNumber());
@@ -135,7 +135,6 @@ public class WorkloadGenerator {
                 case "random_integer_from_list":
                     if (field.get("custom_list") != null) {
                         String[] range = field.get("custom_list").split(",");
-
                         jsonMap.put(field.get("name"),Integer.valueOf(getRandomValues(range)));
                     } else {
                         System.out.println("Improper Mapping Definition");
@@ -225,13 +224,6 @@ public class WorkloadGenerator {
             field = (Map<String,String>) iterator.next();
 
             switch(field.get("type")){
-                case "int":
-                case "zipcode":
-                case "random_integer_from_list":
-                    Map<String,String> integerField = new HashMap<>();
-                    integerField.put("type","integer");
-                    propertiesObject.put(field.get("name"),integerField);
-                    break;
                 case "double":
                     Map<String,String> doubleField = new HashMap<>();
                     doubleField.put("type","double");
@@ -284,9 +276,16 @@ public class WorkloadGenerator {
                 case "team_name":
                 case "constant_string" :
                 case "timezone":
+                case "zipcode":
                     Map<String,String> fullNameField = new HashMap<>();
                     fullNameField.put("type","text");
                     propertiesObject.put(field.get("name"),fullNameField);
+                    break;
+                case "int":
+                case "random_integer_from_list":
+                    Map<String,String> integerField = new HashMap<>();
+                    integerField.put("type","integer");
+                    propertiesObject.put(field.get("name"),integerField);
                     break;
                 case "geo_point":
                     Map<String,String> geoPointField = new HashMap<>();
