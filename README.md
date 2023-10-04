@@ -128,3 +128,7 @@ Simply, you need the URL for your APM server and the token provided by APM.
 
 Additionally, there's a debug script runme_apm_debug.bash if things get confusing or not going smoothly.
 ```
+
+## Now if you don't like building and compling all this stuff...
+https://hub.docker.com/r/ajpahl1008/simple-data-generator
+Yeah we should have started with this... :) 
