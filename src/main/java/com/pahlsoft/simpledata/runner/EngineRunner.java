@@ -7,13 +7,14 @@ import com.pahlsoft.simpledata.model.Workload;
 import com.pahlsoft.simpledata.threader.WorkloadGeneratorEngineThreader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Iterator;
+
 
 public class EngineRunner {
     static Logger log = LoggerFactory.getLogger(EngineRunner.class);
@@ -58,24 +59,24 @@ public class EngineRunner {
         log.debug("Number of Workloads " + configuration.getWorkloads().size());
     }
 
-    private static Configuration loadConfig(String args) {
+    private static Configuration loadConfig(String filename) {
         Configuration configuration = null;
         try {
-            try
-            {
-                Yaml yaml = new Yaml(new Constructor(Configuration.class));
-                InputStream inputStream = new FileInputStream(new File(args));
-               configuration = yaml.load(inputStream);
-            } catch (Exception e) {
-                log.error(e.getMessage());
-            }
+
+            File file = new File(filename);
+            FileInputStream input = new FileInputStream(file);
+
+            Yaml yaml = new Yaml();
+            configuration = yaml.loadAs(input,Configuration.class);
+
+            log.info("Configuration Loaded");
+            System.out.println("Configuration Loaded.");
+
         } catch ( Exception e) {
             System.out.println("Initialization Error: Unable to Load YML model file");
             log.error("Initialization Error: Unable to Load YML model file");
             System.exit(1);
         }
-        log.info("Configuration Loaded");
-        System.out.println("Configuration Loaded.");
         return configuration;
     }
 

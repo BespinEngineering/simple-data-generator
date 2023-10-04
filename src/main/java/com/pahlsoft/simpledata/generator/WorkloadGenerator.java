@@ -1,11 +1,11 @@
 package com.pahlsoft.simpledata.generator;
 
-import co.elastic.apm.api.CaptureSpan;
-import com.github.javafaker.Faker;
+
 
 import java.util.*;
 
 import com.pahlsoft.simpledata.model.Workload;
+import net.datafaker.Faker;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,7 +18,7 @@ public class WorkloadGenerator {
     private static final Faker faker = new Faker(new Locale("en-US"));
 
 
-    @CaptureSpan
+
     @SuppressWarnings("unchecked")
     public static Map<String, Object> buildDocument(Workload workload) {
         Map<String, Object> jsonMap = new HashMap<>();
@@ -171,7 +171,7 @@ public class WorkloadGenerator {
                     jsonMap.put(field.get("name"),faker.internet().domainName());
                     break;
                 case "hash":
-                    jsonMap.put(field.get("name"),faker.crypto().sha512());
+                    jsonMap.put(field.get("name"),faker.hashing().sha512());
                     break;
                 case "random_cn_fact":
                     jsonMap.put(field.get("name"),faker.chuckNorris().fact());
@@ -210,7 +210,7 @@ public class WorkloadGenerator {
         return jsonMap;
     }
 
-    @CaptureSpan
+
     @SuppressWarnings("unchecked")
     public static JSONObject buildMapping(Workload workload) throws JSONException {
         JSONObject mappingsObject = new JSONObject();
@@ -317,7 +317,6 @@ public class WorkloadGenerator {
     }
 
 
-    @CaptureSpan
     public static JSONObject buildSettings(Workload workload) throws JSONException {
         JSONObject indexObject = new JSONObject();
         JSONObject settingsObject = new JSONObject();

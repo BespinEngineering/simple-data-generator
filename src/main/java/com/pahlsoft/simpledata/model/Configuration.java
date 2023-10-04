@@ -16,12 +16,14 @@ public class Configuration {
     private String keystorePassword;
     private List<Workload> workloads;
 
-    public String getElasticsearchScheme() {
-        return elasticsearchScheme;
+    public Configuration() {}
+
+    public void setElasticsearchScheme(String elasticsearchScheme) {
+        this.elasticsearchScheme = elasticsearchScheme;
     }
 
-    public void setHttpScheme(String elasticsearchScheme) {
-        this.elasticsearchScheme = elasticsearchScheme;
+    public String getElasticsearchScheme() {
+        return elasticsearchScheme;
     }
 
     public String getElasticsearchHost() {

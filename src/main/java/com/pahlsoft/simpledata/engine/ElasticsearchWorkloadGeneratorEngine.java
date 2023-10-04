@@ -1,9 +1,5 @@
 package com.pahlsoft.simpledata.engine;
 
-import co.elastic.apm.api.CaptureSpan;
-import co.elastic.apm.api.ElasticApm;
-import co.elastic.apm.api.Span;
-import co.elastic.apm.api.Transaction;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.json.JsonData;
@@ -59,12 +55,6 @@ public class ElasticsearchWorkloadGeneratorEngine implements Engine {
                 try {
                     //Bulk Docs
                     if (workload.getElasticsearchBulkQueueDepth() > 0) {
-                        // Elastic APM
-                        Transaction transaction = ElasticApm.startTransaction();
-                        setTransactionInfo(transaction,"BulkIndexRequest");
-                        transaction.setLabel("BulkIndexRequest: ", workload.getIndexName());
-                        Span span = transaction.startSpan();
-                        span.setName("Build Bulk Request");
                         BulkRequest.Builder br = new BulkRequest.Builder();
                         ObjectMapper objectMapper = new ObjectMapper();
                         InputStream input;
@@ -87,17 +77,9 @@ public class ElasticsearchWorkloadGeneratorEngine implements Engine {
                             e.printStackTrace();
                         }
                         log.debug(response.items().size() + " Documents Bulk Indexed in " + response.took() + "ms");
-                        span.end();
-                        transaction.end();
+
                     // Single Doc
                     } else {
-                        // Elastic APM
-                        Transaction transaction = ElasticApm.startTransaction();
-                        setTransactionInfo(transaction,"SingleIndexRequest");
-                        transaction.setLabel("SingleIndexRequest: ", workload.getIndexName());
-                        Span span = transaction.startSpan();
-                        span.setName("Build Single Request");
-
                         ObjectMapper objectMapper = new ObjectMapper();
                         String json = objectMapper.writeValueAsString(WorkloadGenerator.buildDocument(workload));
                         Reader input = new StringReader(json);
@@ -107,8 +89,6 @@ public class ElasticsearchWorkloadGeneratorEngine implements Engine {
                         );
                         IndexResponse response = esClient.index(request);
                         log.debug("Document " + response.id() + " Indexed with version " + response.version());
-                        span.end();
-                        transaction.end();
                     }
 
                     //TODO: This is where the periodicity/peak-spike logic goes
@@ -127,14 +107,6 @@ public class ElasticsearchWorkloadGeneratorEngine implements Engine {
         }
     }
 
-    private void setTransactionInfo(Transaction transaction, String transactionType) {
-        transaction.setName(transactionType);
-        transaction.setType(Transaction.TYPE_REQUEST);
-        transaction.setLabel("workload",workload.getWorkloadName());
-        transaction.setLabel("thread_id",Thread.currentThread().getId());
-        transaction.setLabel("sleep_time",workload.getWorkloadSleep());
-        transaction.setLabel("total_threads", workload.getWorkloadThreads());
-    }
 
     public static JsonData readJson(InputStream input, ElasticsearchClient esClient) {
             JsonpMapper jsonpMapper = esClient._transport().jsonpMapper();
