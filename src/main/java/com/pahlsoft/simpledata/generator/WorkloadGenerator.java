@@ -1,13 +1,12 @@
 package com.pahlsoft.simpledata.generator;
 
 
-
-import java.util.*;
-
 import com.pahlsoft.simpledata.model.Workload;
 import net.datafaker.Faker;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.*;
 
 public class WorkloadGenerator {
 
