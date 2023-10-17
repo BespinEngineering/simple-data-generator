@@ -1,5 +1,15 @@
 # Use the official OpenJDK 17 base image
-FROM amazoncorretto:17.0.8
+FROM alpine:latest
+
+# Update the package manager and install OpenSSL
+RUN apk update && apk add bash && apk add openssl
+
+# Install the latest version of OpenJDK (JRE)
+RUN apk add openjdk17
+
+# Set environment variables (optional)
+ENV JAVA_HOME=/usr/lib/jvm/default-jvm
+ENV PATH=$PATH:$JAVA_HOME/bin
 
 # Set the working directory in the docker image
 WORKDIR /app
@@ -10,8 +20,5 @@ COPY java.policy /app
 COPY build_docker_keystore.bash /app
 COPY docker_run.bash /app
 
-RUN yum install -y openssl
-
 # Run the JAR file with the java command and provide the configuration file as an argument
 CMD ["/app/docker_run.bash"]
-
