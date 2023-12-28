@@ -1,11 +1,11 @@
 # Use the official OpenJDK 17 base image
-FROM alpine:latest
+FROM alpine:3.18
 
 # Update the package manager and install OpenSSL
 RUN apk update && apk add bash && apk add openssl
 
 # Install the latest version of OpenJDK (JRE)
-RUN apk add openjdk17
+RUN apk add openjdk17 && apk update
 
 # Set environment variables (optional)
 ENV JAVA_HOME=/usr/lib/jvm/default-jvm

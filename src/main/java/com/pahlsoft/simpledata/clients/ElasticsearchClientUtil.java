@@ -29,10 +29,11 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.SSLContext;
+import javax.net.ssl.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -40,6 +41,7 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
@@ -47,13 +49,12 @@ import java.util.Collections;
 public class ElasticsearchClientUtil implements ClientUtil {
 
     static Logger log = LoggerFactory.getLogger(ElasticsearchClientUtil.class);
-    private static KeyStore trustStore = null;
+    private static KeyStore keyStore = null;
     private static SSLContextBuilder sslBuilder = null;
     private static SSLContext sslContext = null;
     private static ElasticsearchTransport transport = null;
     private static RestClient restClient = null;
     private static ElasticsearchClient esClient = null;
-
 
     public static ElasticsearchClient createClient(final Configuration configuration, final Workload workload) {
        setupElasticsearch(configuration, workload);
@@ -64,9 +65,7 @@ public class ElasticsearchClientUtil implements ClientUtil {
         // And create the API client
         esClient = buildElasticsearchClient(configuration);
 
-        //Check to see if we need to purge existing run and clean it up
         if (workload.getPurgeOnStart()) {
-            //TODO: May have created a threading issue with purgeOnStart... Might have to create a some logic in caller
             purgeOnStart(workload);
         } else {
             createElasticsearchIndexTemplate(workload);
@@ -200,20 +199,36 @@ public class ElasticsearchClientUtil implements ClientUtil {
     }
 
     private static SSLContextBuilder buildSSLContext(Configuration configuration) {
-        try {
-            trustStore = KeyStore.getInstance("jks");
-        } catch (KeyStoreException e) {
-            log.warn(e.getMessage());
-        }
-        try (InputStream is = Files.newInputStream(Paths.get(configuration.getKeystoreLocation()))) {
-            trustStore.load(is, configuration.getKeystorePassword().toCharArray());
-        } catch (Exception e) {
-            log.warn(e.getMessage());
+
+        log.info("Configuration Keystore Length is: " + configuration.getKeystoreLocation().length());
+
+        if (configuration.getKeystoreLocation().isEmpty() || configuration.getKeystorePassword().isEmpty()) {
+            String elasticsearchUrl = configuration.getElasticsearchScheme()+"://"+configuration.getElasticsearchHost()+":"+configuration.getElasticsearchPort();
+            try {
+                log.debug("No Keystores Configured.  Building Keystore.");
+                createEmptyTrustStore();
+                log.debug("Getting Self Signed Certificate at: " + elasticsearchUrl);
+                addCertificateToTrustStore("elasticsearch-cert",getSelfSignedCertificate(elasticsearchUrl));
+            } catch (Exception e) {
+                log.warn(e.getMessage());
+            }
+        } else {
+            try {
+                keyStore = KeyStore.getInstance("jks");
+            } catch (KeyStoreException e) {
+                log.warn(e.getMessage());
+            }
+            try (InputStream is = Files.newInputStream(Paths.get(configuration.getKeystoreLocation()))) {
+                keyStore.load(is, configuration.getKeystorePassword().toCharArray());
+            } catch (Exception e) {
+                log.warn(e.getMessage());
+            }
+
         }
 
         try {
             sslBuilder = SSLContexts.custom()
-                    .loadTrustMaterial(trustStore, null);
+                    .loadTrustMaterial(keyStore, null);
         } catch (NoSuchAlgorithmException | KeyStoreException e) {
             log.warn(e.getMessage());
         }
@@ -257,6 +272,41 @@ public class ElasticsearchClientUtil implements ClientUtil {
                     }
                 });
 
+    }
+
+    public static void createEmptyTrustStore() throws Exception {
+        keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore.load(null, null);  // Initialize with nulls to create an empty trust store
+    }
+
+    public static X509Certificate getSelfSignedCertificate(String httpsUrl) throws Exception {
+        // Create a trust manager that does not validate certificate chains
+        TrustManager[] trustAllCerts = new TrustManager[] {
+                new X509TrustManager() {
+                    public X509Certificate[] getAcceptedIssuers() { return null; }
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) { }
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) { }
+                }
+        };
+
+        // Install the trust manager
+        SSLContext sc = SSLContext.getInstance("SSL");
+        sc.init(null, trustAllCerts, new java.security.SecureRandom());
+        SSLSocketFactory sslSocketFactory = sc.getSocketFactory();
+
+        // Open a connection to the URL
+        URL url = new URL(httpsUrl);
+        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+        connection.setSSLSocketFactory(sslSocketFactory);
+        connection.setHostnameVerifier((hostname, session) -> true);
+        connection.connect();
+
+        // Retrieve the certificate
+        return (X509Certificate) connection.getServerCertificates()[0];
+    }
+
+    public static void addCertificateToTrustStore(String alias, X509Certificate certificate) throws Exception {
+        keyStore.setCertificateEntry(alias, certificate);
     }
 
 }

@@ -78,7 +78,6 @@ public class ElasticsearchWorkloadGeneratorEngine implements Engine {
                         try {
                             response = esClient.bulk(br.build());
                         } catch (Exception e) {
-                            System.out.println("Looking HERE AJ!!!");
                             e.printStackTrace();
                         }
                         log.debug(response.items().size() + " Documents Bulk Indexed in " + response.took() + "ms");
