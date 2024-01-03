@@ -95,7 +95,7 @@ public class ElasticsearchWorkloadGeneratorEngine implements Engine {
                         log.debug("Document " + response.id() + " Indexed with version " + response.version());
                     }
 
-                    //TODO: This is where the periodicity/peak-spike logic goes
+                    // NOTE: This is where the periodicity/peak-spike logic goes
                     Thread.sleep(calculateSleepDuration());
                 } catch (Exception e) {
                     log.debug("Indexing Error:" + e.getMessage());
