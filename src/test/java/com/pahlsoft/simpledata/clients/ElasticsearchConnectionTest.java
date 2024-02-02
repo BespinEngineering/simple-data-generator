@@ -45,13 +45,13 @@ class ElasticsearchConnectionTest {
 
         // Stubbed Configuration for SDG
         configuration = new Configuration();
-        configuration.setElasticsearchScheme("https");
-        configuration.setElasticsearchHost("localhost");
-        configuration.setElasticsearchPort(container.getFirstMappedPort());
-        configuration.setElasticsearchUser("elastic");
-        configuration.setElasticsearchPassword("letme1n");
-        configuration.setElasticsearchApiKeyEnabled(false);
-        configuration.setElasticsearchApiKeyId("");
+        configuration.setBackendScheme("https");
+        configuration.setBackendHost("localhost");
+        configuration.setBackendPort(container.getFirstMappedPort());
+        configuration.setBackendUser("elastic");
+        configuration.setBackendPassword("letme1n");
+        configuration.setBackendApiKeyEnabled(false);
+        configuration.setBackendApiKeySecret("");
         configuration.setKeystoreLocation(""); // Intentionally left empty for Unit testing w/ TestContainers
         configuration.setKeystorePassword(""); // Intentionally left empty for Unit testing w/ TestContainers
 
@@ -65,7 +65,7 @@ class ElasticsearchConnectionTest {
         workload.setReplicaShardCount(1);
         workload.setPeakTime("19:00:00");
         workload.setPurgeOnStart(false);
-        workload.setElasticsearchBulkQueueDepth(0);
+        workload.setBackendBulkQueueDepth(0);
 
         // Sample Data for Workload
         Map<String, Object> singleWorkload = new HashMap<>();

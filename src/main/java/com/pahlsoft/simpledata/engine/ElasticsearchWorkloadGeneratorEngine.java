@@ -48,7 +48,7 @@ public class ElasticsearchWorkloadGeneratorEngine implements Engine {
             log.info("Thread[" + Thread.currentThread() + "] Workload Index Replica Shard Count: " + workload.getReplicaShardCount());
             log.info("Thread[" + Thread.currentThread() + "] Purge on Start Setting: " + workload.getPurgeOnStart().toString());
             log.info("Thread[" + Thread.currentThread() + "] Target Index Name: " + workload.getIndexName());
-            log.info("Thread[" + Thread.currentThread() + "] Bulk Queue Depth: " + workload.getElasticsearchBulkQueueDepth());
+            log.info("Thread[" + Thread.currentThread() + "] Bulk Queue Depth: " + workload.getBackendBulkQueueDepth());
         }
 
         //////////////////////////
@@ -59,12 +59,12 @@ public class ElasticsearchWorkloadGeneratorEngine implements Engine {
             try {
                 try {
                     //Bulk Docs
-                    if (workload.getElasticsearchBulkQueueDepth() > 0) {
+                    if (workload.getBackendBulkQueueDepth() > 0) {
                         BulkRequest.Builder br = new BulkRequest.Builder();
                         ObjectMapper objectMapper = new ObjectMapper();
                         InputStream input;
 
-                        for (int bulkItems = 0; bulkItems < workload.getElasticsearchBulkQueueDepth(); bulkItems++) {
+                        for (int bulkItems = 0; bulkItems < workload.getBackendBulkQueueDepth(); bulkItems++) {
                             input = new ByteArrayInputStream(objectMapper.writeValueAsString(WorkloadGenerator.buildDocument(workload)).getBytes());
                             JsonData jsonp = readJson(input, esClient);
                             br.operations(op -> op
