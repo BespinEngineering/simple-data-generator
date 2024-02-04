@@ -9,7 +9,7 @@ import co.elastic.clients.json.JsonData;
 import co.elastic.clients.json.JsonpMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pahlsoft.simpledata.clients.ElasticsearchClientUtil;
-import com.pahlsoft.simpledata.generator.WorkloadGenerator;
+import com.pahlsoft.simpledata.generator.WorkloadGeneratorJSON;
 import com.pahlsoft.simpledata.interfaces.Engine;
 import com.pahlsoft.simpledata.model.Configuration;
 import com.pahlsoft.simpledata.model.Workload;
@@ -65,7 +65,7 @@ public class ElasticsearchWorkloadGeneratorEngine implements Engine {
                         InputStream input;
 
                         for (int bulkItems = 0; bulkItems < workload.getBackendBulkQueueDepth(); bulkItems++) {
-                            input = new ByteArrayInputStream(objectMapper.writeValueAsString(WorkloadGenerator.buildDocument(workload)).getBytes());
+                            input = new ByteArrayInputStream(objectMapper.writeValueAsString(WorkloadGeneratorJSON.buildDocument(workload)).getBytes());
                             JsonData jsonp = readJson(input, esClient);
                             br.operations(op -> op
                                     .index(idx -> idx
@@ -85,7 +85,7 @@ public class ElasticsearchWorkloadGeneratorEngine implements Engine {
                     // Single Doc
                     } else {
                         ObjectMapper objectMapper = new ObjectMapper();
-                        String json = objectMapper.writeValueAsString(WorkloadGenerator.buildDocument(workload));
+                        String json = objectMapper.writeValueAsString(WorkloadGeneratorJSON.buildDocument(workload));
                         Reader input = new StringReader(json);
                         IndexRequest<JsonData> request = IndexRequest.of(i -> i
                                 .index(workload.getIndexName())

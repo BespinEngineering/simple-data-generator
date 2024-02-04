@@ -8,7 +8,7 @@ import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.endpoints.BooleanResponse;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
-import com.pahlsoft.simpledata.generator.WorkloadGenerator;
+import com.pahlsoft.simpledata.generator.WorkloadGeneratorJSON;
 import com.pahlsoft.simpledata.interfaces.ClientUtil;
 import com.pahlsoft.simpledata.model.Configuration;
 import com.pahlsoft.simpledata.model.Workload;
@@ -118,8 +118,8 @@ public class ElasticsearchClientUtil implements ClientUtil {
         indexTemplateWrapper = new JSONObject();
         try {
 
-            indexMapping = WorkloadGenerator.buildMapping(workload);
-            indexSettings = WorkloadGenerator.buildSettings(workload);
+            indexMapping = WorkloadGeneratorJSON.buildMapping(workload);
+            indexSettings = WorkloadGeneratorJSON.buildSettings(workload);
             String patternString =  workload.getIndexName() +"*";
             indexTemplate.append("index_patterns", patternString);
 

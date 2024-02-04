@@ -4,9 +4,8 @@ import java.sql.*;
 import java.text.MessageFormat;
 import java.util.Properties;
 
-import com.clickhouse.client.ClickHouseClient;
-import com.clickhouse.jdbc.ClickHouseDataSource;
-import com.pahlsoft.simpledata.clients.ClickhouseClientUtil;
+import com.pahlsoft.simpledata.clients.ClickHouseClient;
+import com.pahlsoft.simpledata.clients.ClickHouseClientUtil;
 import com.pahlsoft.simpledata.interfaces.Engine;
 import com.pahlsoft.simpledata.model.Configuration;
 import com.pahlsoft.simpledata.model.Workload;
@@ -19,13 +18,12 @@ public class ClickhouseWorkloadGeneratorEngine implements Engine {
 
     private Workload workload;
 
-    private ClickHouseDataSource dataSource;
-
+    private ClickHouseClient chClient;
 
     public ClickhouseWorkloadGeneratorEngine(Configuration configuration, Workload workload) {
         this.workload = workload;
         // TODO: This might not be needed as we're using Traditional DB connections. Research using a connection pool.
-        this.dataSource = ClickhouseClientUtil.createClient(configuration, workload);
+        this.chClient = ClickHouseClientUtil.createClient(configuration, workload);
     }
 
     @Override
@@ -65,26 +63,7 @@ public class ClickhouseWorkloadGeneratorEngine implements Engine {
             }
         }
 
-        System.out.println("Initiating Clickhouse Client....");
-        String url = "jdbc:ch:http://localhost:8123";
-        Properties properties = new Properties();
-        properties.setProperty("user", "" );  //TODO: Continue work here
-        properties.setProperty("password", "");
-        properties.setProperty("client_name", "Simple Data Generator");
 
-        try {
-            dataSource = new ClickHouseDataSource(url, properties);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        try (Connection conn = dataSource.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("show databases")) {
-
-
-        } catch (SQLException sqlException) {
-            System.out.println("Something bad happened talking to CH");
-        }
 
     }
 }

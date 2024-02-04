@@ -8,10 +8,10 @@ import org.json.JSONObject;
 
 import java.util.*;
 
-public class WorkloadGenerator {
+public class WorkloadGeneratorJSON {
 
-    WorkloadGenerator() {
-        throw new IllegalStateException("WorkloadGenerator class");
+    WorkloadGeneratorJSON() {
+        throw new IllegalStateException("WorkloadGeneratorJSON class");
     }
 
     private static final Faker faker = new Faker(new Locale("en-US"));
