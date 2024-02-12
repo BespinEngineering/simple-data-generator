@@ -16,8 +16,6 @@ public class WorkloadGeneratorJSON {
 
     private static final Faker faker = new Faker(new Locale("en-US"));
 
-
-
     @SuppressWarnings("unchecked")
     public static Map<String, Object> buildDocument(Workload workload) {
         Map<String, Object> jsonMap = new HashMap<>();
@@ -208,7 +206,6 @@ public class WorkloadGeneratorJSON {
 
         return jsonMap;
     }
-
 
     @SuppressWarnings("unchecked")
     public static JSONObject buildMapping(Workload workload) throws JSONException {

@@ -1,6 +1,7 @@
 package com.pahlsoft.simpledata.clients;
 
 
+import com.pahlsoft.simpledata.generator.WorkloadGeneratorSQL;
 import com.pahlsoft.simpledata.model.Configuration;
 import com.pahlsoft.simpledata.model.Workload;
 import org.junit.jupiter.api.AfterAll;
@@ -11,19 +12,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.clickhouse.ClickHouseContainer;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 class ClickhouseConnectionTest {
 
     static Logger log = LoggerFactory.getLogger(ClickhouseConnectionTest.class);
     private static ClickHouseContainer container;
 
-    private static URL clickhouseURL;
-
    private static Configuration configuration;
    private static Workload workload;
    private static ClickHouseClient chClient;
 
-   // private static List<Map<String, Object>> workloadMap = new ArrayList<>();
+   private static List<Map<String, Object>> workloadMap = new ArrayList<>();
 
     @BeforeAll
     static void setup() throws Exception {
@@ -31,7 +34,6 @@ class ClickhouseConnectionTest {
         // Build TestContainer
         container = new ClickHouseContainer("clickhouse/clickhouse-server")
                 .withReuse(true)
-                .withDatabaseName("TESTCHDB")
                 .withUsername("default")
                 .withPassword( "letme1n");
         container.start();
@@ -39,26 +41,15 @@ class ClickhouseConnectionTest {
         log.info("HTTP/CLIENT access for Clickhouse Port Map 8123->" + container.getMappedPort(8123));
 
         loadConfigAndWorkload();
-
-        chClient = new ClickHouseClient(configuration, workload);
-
-        //buildAndIndexSingleDocument();
+        chClient = new ClickHouseClient(configuration);
 
     }
 
     private static void loadConfigAndWorkload() {
 
-        //        // Sample Data for Workload
-//        Map<String, Object> singleWorkload = new HashMap<>();
-//        singleWorkload.put("name", "product.category");
-//        singleWorkload.put("type", "random_string_from_list");
-//        singleWorkload.put("custom_list", new String("appliances, computers, diy, tools, televisions, audio"));
-//
-//        workloadMap.add(singleWorkload);
-//        workload.setFields(workloadMap);
-
         // Stubbed Configuration for SDG
         configuration = new Configuration();
+        configuration.setBackendType("CLICKHOUSE");
         configuration.setBackendScheme("http");  //TODO: Make this secure with TLS
         configuration.setBackendHost("localhost");
         configuration.setBackendPort(container.getMappedPort(8123)); // Port needed to talk as CH Client
@@ -72,7 +63,9 @@ class ClickhouseConnectionTest {
         // Workload for SDG
         workload = new Workload();
         workload.setWorkloadName("TestLoad");
-        workload.setIndexName("junit-test-index");
+        workload.setDatabaseName("JUNIT_TEST_DATABASE");
+        workload.setTableName("JUNIT_TEST_TABLE");
+        workload.setBackendEngine("MergeTree");   //MergeTree is self managed, ReplicatedMergeTree is Cloud Service
         workload.setWorkloadThreads(1);
         workload.setWorkloadSleep(1000);
         workload.setPrimaryShardCount(1);
@@ -80,6 +73,26 @@ class ClickhouseConnectionTest {
         workload.setPeakTime("19:00:00");
         workload.setPurgeOnStart(false);
         workload.setBackendBulkQueueDepth(0);
+
+        // Sample Data for Workload
+        Map<String, Object> sampleWorkloadInt = new HashMap<>();
+        sampleWorkloadInt.put("name", "product_category");
+        sampleWorkloadInt.put("type", "int");
+        workloadMap.add(sampleWorkloadInt);
+
+        Map<String, Object> sampleWorkloadFloat = new HashMap<>();
+        sampleWorkloadFloat.put("name", "product_serial");
+        sampleWorkloadFloat.put("type", "float");
+        workloadMap.add(sampleWorkloadFloat);
+
+        Map<String, Object> sampleWorkloadString = new HashMap<>();
+        sampleWorkloadString.put("name", "product_description");
+        sampleWorkloadString.put("type", "product_name");
+        sampleWorkloadString.put("primary_key", "yes");
+        workloadMap.add(sampleWorkloadString);
+
+        workload.setFields(workloadMap);
+
     }
 
     @AfterAll
@@ -106,25 +119,25 @@ class ClickhouseConnectionTest {
     }
 
     @Test
-     void createTestTable() throws Exception {
-        // SQL query to create a table
-        String sqlQuery = "CREATE TABLE IF NOT EXISTS dude (" +
-                "id Int32, " +
-                "name String" +
-                ") ENGINE = MergeTree() " +
-                "ORDER BY id";
+    void createDatabase() throws Exception {
+        String sqlQuery = "CREATE DATABASE " + workload.getDatabaseName();
         Assertions.assertEquals(200,chClient.executeQuery(sqlQuery));
     }
 
-//    @Test
-//    void buildTableFromWorkloadTest() throws Exception {
-//        Assert.assertTrue(true); //TODO: Stubbed out
-//    }
-//
-//
-//    @Test
-//     void buildAndInsertSingleRecordFromWorkloadTest() throws Exception {
-//        //TODO: Create a record in the test table.  Following tests will work after this one is created.
-//    }
+    @Test
+    void createTableFromWorkload() throws Exception {
+        String sqlQuery = WorkloadGeneratorSQL.buildCreateTableStatement(workload);
+        Assertions.assertEquals(200,chClient.executeQuery(sqlQuery));
+        String validateTableQuery = "SELECT * FROM " + workload.getDatabaseName() + "." + workload.getTableName();
+        Assertions.assertEquals(200,chClient.executeQuery(validateTableQuery));
+    }
+
+
+
+    @Test
+     void buildAndInsertSingleRecordFromWorkload() throws Exception {
+        String sqlQuery = WorkloadGeneratorSQL.buildSingleRecord(workload);
+        Assertions.assertEquals(200,chClient.executeQuery(sqlQuery));
+    }
 
 }
