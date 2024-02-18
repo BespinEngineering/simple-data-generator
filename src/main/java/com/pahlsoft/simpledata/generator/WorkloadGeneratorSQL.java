@@ -6,6 +6,7 @@ import net.datafaker.Faker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.security.SecureRandom;
 import java.util.*;
 
 public class WorkloadGeneratorSQL {
@@ -153,8 +154,9 @@ public class WorkloadGeneratorSQL {
         return listOfThings[getRandomInteger(0,listOfThings.length - 1)];
     }
 
+
     private static synchronized int getRandomInteger(int min, int max) {
-        Random rand = new Random();
+        SecureRandom rand = new SecureRandom();
         return rand.nextInt((max - min) + 1) + min;
 
     }

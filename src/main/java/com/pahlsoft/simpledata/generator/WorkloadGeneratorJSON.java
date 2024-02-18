@@ -6,6 +6,7 @@ import net.datafaker.Faker;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.SecureRandom;
 import java.util.*;
 
 public class WorkloadGeneratorJSON {
@@ -334,7 +335,7 @@ public class WorkloadGeneratorJSON {
     }
 
     private static synchronized int getRandomInteger(int min, int max) {
-        Random rand = new Random();
+        SecureRandom rand = new SecureRandom();
         return rand.nextInt((max - min) + 1) + min;
 
     }
