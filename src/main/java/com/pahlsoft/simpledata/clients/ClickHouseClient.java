@@ -36,7 +36,7 @@ public class ClickHouseClient {
         try {
             // Setting up the HTTP connection
             URL url = new URL(configuration.getBackendScheme() + "://" + configuration.getBackendHost() + ":" + configuration.getBackendPort());
-            log.info("Connecting to Clickhouse : " + url.toString());
+            log.debug("Connecting to Clickhouse : " + url.toString());
             if (configuration.getBackendScheme() == "https") {
                 HttpsURLConnection connection = createSecureConnection(url);
                 connection.setRequestMethod("POST");
