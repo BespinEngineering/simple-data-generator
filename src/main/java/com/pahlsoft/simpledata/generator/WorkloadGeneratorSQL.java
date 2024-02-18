@@ -27,7 +27,6 @@ public class WorkloadGeneratorSQL {
     }
 
 
-    @SuppressWarnings("unchecked")
     public static String buildSingleRecord(Workload workload) {
         StringBuilder singleRecord = new StringBuilder();
         singleRecord.append("INSERT INTO ").append(workload.getDatabaseName()).append(".").append(workload.getTableName()).append(" ");
