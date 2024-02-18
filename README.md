@@ -50,7 +50,7 @@ _Remember, none of this is necessary if you use the containerized version where 
 
 There's a couple of examples in the example directory but here's the basic structure.
 ```
-backendType: 
+backendType: <ELASTICSEARCH or CLICKHOUSE>
 backendScheme: https
 backendHost: <REQUIRED>
 backendPort: 9243
@@ -85,7 +85,7 @@ workloads:
 ```
 ### Multiple Workload Structure
 ```
-backendType: 
+backendType: <ELASTICSEARCH or CLICKHOUSE>
 backendScheme: https
 backendHost: <REQUIRED>
 backendPort: 9243
