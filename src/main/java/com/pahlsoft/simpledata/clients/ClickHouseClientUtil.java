@@ -40,7 +40,6 @@ public class ClickHouseClientUtil implements ClientUtil {
 
     //TODO: Implement TLS handling of URL for HTTP Client
 
-
     private static void createClickhouseDatabase(Workload workload) throws Exception {
         String sqlQuery = "CREATE DATABASE " + workload.getDatabaseName();
         try {
