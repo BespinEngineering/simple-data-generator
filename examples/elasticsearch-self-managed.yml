@@ -1,7 +1,7 @@
 backendType: ELASTICSEARCH
-backendScheme: https
+backendScheme: http
 backendHost: <REQUIRED>
-backendPort: <REQUIRED>
+backendPort: 9200
 backendUser: elastic
 backendPassword: <REQUIRED>
 backendApiKeyEnabled: false
