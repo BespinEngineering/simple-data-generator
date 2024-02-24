@@ -18,7 +18,7 @@ public class WorkloadGeneratorSQL {
     static Logger log = LoggerFactory.getLogger(ClickHouseClientUtil.class);
 
     public static String buildBulkRecord(Workload workload) {
-        StringBuilder bulkRecord = new StringBuilder();
+        StringBuffer bulkRecord = new StringBuffer();
          bulkRecord.append("INSERT INTO ").append(workload.getDatabaseName()).append(".").append(workload.getTableName()).append(" ");
          bulkRecord.append(parseWorkload(workload, false));
         for (int bulkCount = 1; bulkCount < workload.getBackendBulkQueueDepth(); bulkCount++) {
@@ -29,7 +29,7 @@ public class WorkloadGeneratorSQL {
 
 
     public static String buildSingleRecord(Workload workload) {
-        StringBuilder singleRecord = new StringBuilder();
+        StringBuffer singleRecord = new StringBuffer();
         singleRecord.append("INSERT INTO ").append(workload.getDatabaseName()).append(".").append(workload.getTableName()).append(" ");
         singleRecord.append(parseWorkload(workload, false));
         log.debug("SQL INSERT STATEMENT: " + singleRecord);
