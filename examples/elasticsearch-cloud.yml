@@ -1,0 +1,35 @@
+backendType: ELASTICSEARCH
+backendScheme: https
+backendHost: <REQUIRED>
+backendPort: <REQUIRED>>
+backendUser: elastic
+backendPassword: <REQUIRED>
+backendApiKeyEnabled: false
+backendApiKeyId:
+backendBulkQueueDepth: 100
+keystoreLocation: keystore.jks
+keystorePassword: <REQUIRED>
+workloads:
+  - workloadName: sdg-test
+    workloadThreads: 2
+    workloadSleep: 100
+    peakHour:
+    indexName: sdg-bulk-data
+    fields:
+      - name: product.category
+        type: random_string_from_list
+        custom_list: appliances, computers, diy, tools, televisions, audio
+      - name: product.id
+        type: uuid
+      - name: product.name
+        type: product_name
+      - name: product.qty_on_hand
+        type: int
+      - name: product.manufacturer
+        type: team_name
+      - name: product.min_price
+        type: float
+        range: 1,40000
+      - name: product.max_price
+        type: float
+        range: 1,100000
