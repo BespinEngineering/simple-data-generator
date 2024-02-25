@@ -21,17 +21,17 @@ To Run: <P>
 ```# java -jar build/libs/simple-data-generator-*-fatJar.jar ./your_config.yml```
 
 ## 2 - Just Run
-Get a release off our [releases](https://github.com/ajpahl1008/simple-data-generator/releases) in GitHub
+Get a release off our [releases](https://github.com/bespinengineering/simple-data-generator/releases) in GitHub
 
 See setup steps below for TLS and Building your config, then Run: <P>
 ```# java -jar build/libs/simple-data-generator-*-fatJar.jar ./your_config.yml```
 
 OR
-Use the [container](https://hub.docker.com/r/ajpahl1008/simple-data-generator) from DockerHub.
+Use the [container](https://hub.docker.com/r/bespinengineering/simple-data-generator) from DockerHub.
 
-```docker pull ajpahl1008/simple-data-generator``` <p>
+```docker pull bespinengineering/simple-data-generator``` <p>
 Build your config (see Step 2 below)<p>
-```docker run -v ./your_config.yml:/config/sdg.yml ajpahl1008/simple-data-generator:{{RELEASE_VERSION}}```
+```docker run -v ./your_config.yml:/config/sdg.yml bespinengineering/simple-data-generator:{{RELEASE_VERSION}}```
 
 
 ## Setup Step 1: Create a Keystore for TLS 
@@ -55,9 +55,9 @@ Currently, we only need it for connecting to Elasticsearch clusters.
 ## Setup Step 2: Create A configuration YAML (yml) file.
 
 ##### See more detailed documentation on Configs, Workloads and Fields
-<P>Configuration Parameters [Documentation](https://github.com/ajpahl1008/simple-data-generator/blob/master/docs/configuration_parameters.md)
-<P>Workload Parameters [Documentation](https://github.com/ajpahl1008/simple-data-generator/blob/master/docs/workload_parameters.md)
-<P>Supported Field Parameters [Documentation](https://github.com/ajpahl1008/simple-data-generator/blob/master/docs/supported_fields.md)
+<P>Configuration Parameters [Documentation](https://github.com/bespinengineering/simple-data-generator/blob/master/docs/configuration_parameters.md)
+<P>Workload Parameters [Documentation](https://github.com/bespinengineering/simple-data-generator/blob/master/docs/workload_parameters.md)
+<P>Supported Field Parameters [Documentation](https://github.com/bespinengineering/simple-data-generator/blob/master/docs/supported_fields.md)
 
 
 There are few configuration examples in the ./examples directory in this repo, but here is the basic structure.
