@@ -1,5 +1,15 @@
 # Supported Fields
 
+## Field Definitions
+In this section, there are the building pieces for defining a field. <p>
+```name``` The name of the field you'll be generating random data for.<P>
+```type``` The <b>type</b> of field you'll be generating data for. Breakdown of various types below. <P> 
+```range``` If defining number types, you can specify a range to select within <P>
+```primary_key``` For Clickhouse configurations, this boolean set to ```true``` you can set this field as a primary key when it creates the table schema<P>
+```custom_list``` Based on the type you're using, you can define a static list of items (names, numbers etc) to randomly choose from.<P>
+
+## Field Examples
+
 ### int, float, boolean (chosen randomly)
 ```
 workloads:
@@ -141,5 +151,5 @@ workloads:
 ....
  fields:
       - name: constant_string
-        value: something that shouldn't change
+        value: something
 ```

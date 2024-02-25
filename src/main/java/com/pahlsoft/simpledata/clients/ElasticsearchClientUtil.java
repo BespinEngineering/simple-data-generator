@@ -8,7 +8,7 @@ import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.endpoints.BooleanResponse;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
-import com.pahlsoft.simpledata.generator.WorkloadGenerator;
+import com.pahlsoft.simpledata.generator.WorkloadGeneratorJSON;
 import com.pahlsoft.simpledata.interfaces.ClientUtil;
 import com.pahlsoft.simpledata.model.Configuration;
 import com.pahlsoft.simpledata.model.Workload;
@@ -76,16 +76,16 @@ public class ElasticsearchClientUtil implements ClientUtil {
 
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         credentialsProvider.setCredentials(AuthScope.ANY,
-                new UsernamePasswordCredentials(configuration.getElasticsearchUser(),configuration.getElasticsearchPassword()));
+                new UsernamePasswordCredentials(configuration.getBackendUser(),configuration.getBackendPassword()));
 
-        if (configuration.getElasticsearchScheme().contentEquals("https")) {
+        if (configuration.getBackendScheme().contentEquals("https")) {
             sslBuilder = buildSSLContext(configuration);
             try {
                 sslContext = sslBuilder.build();
             } catch (NoSuchAlgorithmException | KeyManagementException exception) {
                 log.error("No Such Algorithm");
             }
-            if (configuration.getElasticsearchApiKeyEnabled()){
+            if (configuration.getBackendApiKeyEnabled()){
                 restClient = getSecureApiClient(sslContext, configuration).build();
             } else {
                 restClient = getSecureClient(credentialsProvider, sslContext, configuration).build();
@@ -118,8 +118,8 @@ public class ElasticsearchClientUtil implements ClientUtil {
         indexTemplateWrapper = new JSONObject();
         try {
 
-            indexMapping = WorkloadGenerator.buildMapping(workload);
-            indexSettings = WorkloadGenerator.buildSettings(workload);
+            indexMapping = WorkloadGeneratorJSON.buildMapping(workload);
+            indexSettings = WorkloadGeneratorJSON.buildSettings(workload);
             String patternString =  workload.getIndexName() +"*";
             indexTemplate.append("index_patterns", patternString);
 
@@ -203,7 +203,7 @@ public class ElasticsearchClientUtil implements ClientUtil {
         log.info("Configuration Keystore Length is: " + configuration.getKeystoreLocation().length());
 
         if (configuration.getKeystoreLocation().isEmpty() || configuration.getKeystorePassword().isEmpty()) {
-            String elasticsearchUrl = configuration.getElasticsearchScheme()+"://"+configuration.getElasticsearchHost()+":"+configuration.getElasticsearchPort();
+            String elasticsearchUrl = configuration.getBackendScheme()+"://"+configuration.getBackendHost()+":"+configuration.getBackendPort();
             try {
                 log.debug("No Keystores Configured.  Building Keystore.");
                 createEmptyTrustStore();
@@ -237,7 +237,7 @@ public class ElasticsearchClientUtil implements ClientUtil {
 
     private static RestClientBuilder getSecureClient(CredentialsProvider credentialsProvider, SSLContext sslContext, Configuration configuration) {
         return RestClient.builder(
-                        new HttpHost(configuration.getElasticsearchHost(), configuration.getElasticsearchPort(), configuration.getElasticsearchScheme()))
+                        new HttpHost(configuration.getBackendHost(), configuration.getBackendPort(), configuration.getBackendScheme()))
                 .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
                     @Override
                     public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
@@ -247,12 +247,12 @@ public class ElasticsearchClientUtil implements ClientUtil {
     }
 
     private static RestClientBuilder getSecureApiClient(SSLContext sslContext, Configuration configuration) {
-        String apiKeyAuth = Base64.getEncoder().encodeToString((configuration.getElasticsearchApiKeyId() + ":" + configuration.getElasticsearchApiKeySecret()).getBytes(StandardCharsets.UTF_8));
+        String apiKeyAuth = Base64.getEncoder().encodeToString((configuration.getBackendApiKeyId() + ":" + configuration.getBackendApiKeySecret()).getBytes(StandardCharsets.UTF_8));
         Collection<Header> defaultHeaders = Collections.singleton((new BasicHeader("Authorization", "ApiKey " + apiKeyAuth)));
 
         //return new RestHighLevelClient(
         return      RestClient.builder(
-                        new HttpHost(configuration.getElasticsearchHost(), configuration.getElasticsearchPort(), configuration.getElasticsearchScheme()))
+                        new HttpHost(configuration.getBackendHost(), configuration.getBackendPort(), configuration.getBackendScheme()))
                 .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
                     @Override
                     public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
@@ -264,7 +264,7 @@ public class ElasticsearchClientUtil implements ClientUtil {
     private static RestClientBuilder getClient(CredentialsProvider credentialsProvider, Configuration configuration) {
         //return new RestHighLevelClient(
         return      RestClient.builder(
-                        new HttpHost(configuration.getElasticsearchHost(),configuration.getElasticsearchPort(), configuration.getElasticsearchScheme()))
+                        new HttpHost(configuration.getBackendHost(),configuration.getBackendPort(), configuration.getBackendScheme()))
                 .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
                     @Override
                     public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {

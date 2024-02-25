@@ -1,48 +1,77 @@
-# Simple Data Generator for Elasticsearch Indices
-The purpose of this project is to ingest some sample data into Elasticsearch. If you have a model in mind, but aren't ready to build piplines in Logstash or deploy various Beats or write code to insert data into Elasticsearch, this project might help you.
+# Simple Data Generator for BigData
+The purpose of this project is to ingest some sample data into SQL and NON-SQL products like Elasticsearch, Clickhouse and others. 
+If you have a model in mind, but aren't ready to build pipelines or deploy write code to index/insert data, this project might help you.
 
-It's multi-threaded so you can generate a fair amount of load.
-It's a refactor of ajpahl1008/sample-data-generator eliminating code for each new workload.
+The engine is multithreaded, so you can generate a fair amount of load.
 It's completely YAML driven. Yay Yaml!!!
 
-Note: This code should not be used as a benchmarking tool for your Elasticsearch instances. You should use a tool like Elastic's Rally (https://github.com/elastic/rally).  This tool, is for just loading a **bunch** of random data (closer to what YOU are going to put in Production) so you can become familiar with the query DSL, or Kibana or Maps or Aggregations. **OR!!!** just demonstrate how effective your data analysis will be streaming to the Elastic stack.
+Advice: Although this code is scalable and multithreaded, it's primary purpose is to generate data not a benchmarking tool. Yet. 
 
-## Requirements
-To Build & Run
-* Gradle (7.6)
+## <U> Two Options for Running Simple Data Generator</U>
+
+## 1 - Build & Run
+
+If you want to build this code, you'll need the following:
+* Gradle (8.5)
 * Java OpenJDK (17+)
 
-To Run
-* Java OpenJDK (17+)
+To compile: <P>
+```# gradle clean; gradle build fatJar``` <P>
+To Run: <P>
+```# java -jar build/libs/simple-data-generator-*-fatJar.jar ./your_config.yml```
+
+## 2 - Just Run
+Get a release off our [releases](https://github.com/ajpahl1008/simple-data-generator/releases) in GitHub
+
+See setup steps below for TLS and Building your config, then Run: <P>
+```# java -jar build/libs/simple-data-generator-*-fatJar.jar ./your_config.yml```
+
+OR
+Use the [container](https://hub.docker.com/r/ajpahl1008/simple-data-generator) from DockerHub.
+
+```docker pull ajpahl1008/simple-data-generator``` <p>
+Build your config (see Step 2 below)<p>
+```docker run -v ./your_config.yml:/config/sdg.yml ajpahl1008/simple-data-generator:{{RELEASE_VERSION}}```
 
 
-# Setup 
+## Setup Step 1: Create a Keystore for TLS 
 
-## Step 1: (Optional,Not Optional) Create a Keystore. 
+_<B>Note: this step isn't necessary if you use the containerized version where we take care if it automagically_.</B>
 
-This used to be optional but now that Security (TLS/Authentication) is in the Basic subscription (FREE) there's no reason to not be secure from the start.  _Granted, you _can_ setup the Elastic Stack without security but why?_
+If you're using a SaaS offering to store your data, it's probably using TLS.  
+When necessary, we'll update this script so you can create that keystore.  
+Currently, we only need it for connecting to Elasticsearch clusters.   
+
+**For Elasticsearch Use:**
 ```
 # ./build_keystore.bash <keystore_password> <elasticsearch_host> <elasticsearch_port>
 ```
-Arguments: 
-  * keystore_password: something you arbirarily set when you create they keystore for the first time.
-  * elasticsearch_host: exclude the http/https it's just the FQDN that resolves to your cluster.
-  * elasticsearch_port: whatever port you've specified for Elasticsearch.  If you're on Elasticsearch Service (cloud.elastic.co) it's 9243.
-  
-Depending how you'll access Elasticsearch, you can run this a few times [changing the elasticsearch_host] to grab the TLS keys for ALL the Elasticsearch servers. 
+**Arguments:** 
+  * ```keystore_password``` something you arbitrarily set when you create they keystore for the first time.
+  * ```elasticsearch_host``` exclude the http/https it's just the FQDN that resolves to your cluster.
+  * ```elasticsearch_port``` whatever TLS port you've configured for Elasticsearch.  If you're on Elasticsearch Service (cloud.elastic.co) it's 9243.
 
-## Step 2: Create A configuration YAML (yml) file.
 
-There's a couple of examples in the example directory but here's the basic structure.
+## Setup Step 2: Create A configuration YAML (yml) file.
+
+##### See more detailed documentation on Configs, Workloads and Fields
+<P>Configuration Parameters [Documentation](https://github.com/ajpahl1008/simple-data-generator/blob/master/docs/configuration_parameters.md)
+<P>Workload Parameters [Documentation](https://github.com/ajpahl1008/simple-data-generator/blob/master/docs/workload_parameters.md)
+<P>Supported Field Parameters [Documentation](https://github.com/ajpahl1008/simple-data-generator/blob/master/docs/supported_fields.md)
+
+
+There are few configuration examples in the ./examples directory in this repo, but here is the basic structure.
+Fields listed as <OPTIONAL> can be left blank or omitted altogether. 
 ```
-elasticsearchScheme: https
-elasticsearchHost: <REQUIRED>
-elasticsearchPort: 9243
-elasticsearchUser: elastic
-elasticsearchPassword: <REQUIRED>
-elasticsearchApiKeyEnabled: false
-elasticsearchApiKeyId: <OPTIONAL>
-elasticsearchApiKeySecret: <OPTIONAL>
+backendType: <ELASTICSEARCH or CLICKHOUSE>
+backendScheme: <https or https>
+backendHost: <REQUIRED>
+backendPort: <REQUIRED>
+backendUser: <REQUIRED>
+backendPassword: <REQUIRED>
+backendApiKeyEnabled: false
+backendApiKeyId: <OPTIONAL>
+backendApiKeySecret: <OPTIONAL>
 keystoreLocation: keystore.jks
 keystorePassword: <REQUIRED>
 workloads:
@@ -50,33 +79,34 @@ workloads:
     indexName: index-1    
     workloadThreads: 1
     workloadSleep: 250
-    primaryShardCount: 3
-    replicaShardCount: 0
-    peakTime: 19:00:00
+    primaryShardCount: 3  #Elasticsearch Specific
+    replicaShardCount: 0  #Elasticsearch Specific
+    peakTime: <OPTIONAL>
     purgeOnStart: true
-    elasticsearchBulkQueueDepth: 0
+    backendBulkQueueDepth: 0
     fields:
       - name: account_number
         type: int
-
       - name: state
         type: state
-
       - name: balance
         type: float
         range: 1,20000
 
 ```
 ### Multiple Workload Structure
+Depending on resource availability, you can have multiple workloads within one configuration.
+
 ```
-elasticsearchScheme: https
-elasticsearchHost: <REQUIRED>
-elasticsearchPort: 9243
-elasticsearchUser: elastic
-elasticsearchPassword: <REQUIRED>
-elasticsearchApiKeyEnabled: false
-elasticsearchApiKeyId: <OPTIONAL>
-elasticsearchApiKeySecret: <OPTIONAL>
+backendType: <ELASTICSEARCH or CLICKHOUSE>
+backendScheme: <https or https>
+backendHost: <REQUIRED>
+backendPort: 9243
+backendUser: <REQUIRED>
+backendPassword: <REQUIRED>
+backendApiKeyEnabled: false
+backendApiKeyId: <OPTIONAL>
+backendApiKeySecret: <OPTIONAL>
 keystoreLocation: keystore.jks
 keystorePassword: <REQUIRED>
 workloads:
@@ -88,7 +118,7 @@ workloads:
     replicaShardCount: 0
     peakTime: 19:00:00
     purgeOnStart: true
-    elasticsearchBulkQueueDepth: 0
+    backendBulkQueueDepth: 0
     fields:
       - name: account_number
         type: int
@@ -101,34 +131,9 @@ workloads:
      replicaShardCount: 0
      peakTime: 19:00:00
      purgeOnStart: true
-     elasticsearchBulkQueueDepth: 0
+     backendBulkQueueDepth: 0
     fields:
       - name: inventory_part_number
         type: int
    ...
 ```
-Documentation on the different types: https://github.com/ajpahl1008/simple-data-generator/blob/master/docs/supported_fields.md 
-
-## Step 3 Compile project
-```
-gradle clean; gradle build fatJar
-```
-
-## Step 4 Run Project
-```
-java -jar build/libs/simple-data-generator-all-1.0-SNAPSHOT.jar your_yaml.yml
-OR
-complete the <NEED_THIS> tagged fields in the runme.bash script
-```
-
-## Step 4.5 Running with Elastic Application Performance Monitoring (APM)
-```
-complete the <NEED_THIS> fields in the runme_apm.bash script
-Simply, you need the URL for your APM server and the token provided by APM.
-
-Additionally, there's a debug script runme_apm_debug.bash if things get confusing or not going smoothly.
-```
-
-## Now if you don't like building and compling all this stuff...
-https://hub.docker.com/r/ajpahl1008/simple-data-generator
-Yeah we should have started with this... :) 

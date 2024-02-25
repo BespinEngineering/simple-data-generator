@@ -6,17 +6,16 @@ import net.datafaker.Faker;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.SecureRandom;
 import java.util.*;
 
-public class WorkloadGenerator {
+public class WorkloadGeneratorJSON {
 
-    WorkloadGenerator() {
-        throw new IllegalStateException("WorkloadGenerator class");
+    WorkloadGeneratorJSON() {
+        throw new IllegalStateException("WorkloadGeneratorJSON class");
     }
 
     private static final Faker faker = new Faker(new Locale("en-US"));
-
-
 
     @SuppressWarnings("unchecked")
     public static Map<String, Object> buildDocument(Workload workload) {
@@ -209,7 +208,6 @@ public class WorkloadGenerator {
         return jsonMap;
     }
 
-
     @SuppressWarnings("unchecked")
     public static JSONObject buildMapping(Workload workload) throws JSONException {
         JSONObject mappingsObject = new JSONObject();
@@ -337,7 +335,7 @@ public class WorkloadGenerator {
     }
 
     private static synchronized int getRandomInteger(int min, int max) {
-        Random rand = new Random();
+        SecureRandom rand = new SecureRandom();
         return rand.nextInt((max - min) + 1) + min;
 
     }

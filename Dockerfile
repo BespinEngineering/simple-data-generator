@@ -15,7 +15,7 @@ ENV PATH=$PATH:$JAVA_HOME/bin
 WORKDIR /app
 
 # Copy the JAR file and the configuration file into the image
-COPY build/libs/simple-data-generator-3.0.0-SNAPSHOT-fatJar.jar /app
+COPY build/libs/simple-data-generator-*-fatJar.jar /app
 COPY java.policy /app
 COPY build_docker_keystore.bash /app
 COPY docker_run.bash /app

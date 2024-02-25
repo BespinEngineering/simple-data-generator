@@ -1,0 +1,131 @@
+backendType: CLICKHOUSE
+backendScheme: https
+backendHost: <REQUIRED>
+backendPort: <REQUIRED>
+backendUser: default
+backendPassword: <REQUIRED>
+backendApiKeyEnabled: false
+backendApiKeyId: <OPTIONAL>
+backendApiKeySecret: <OPTIONAL>
+keystoreLocation: keystore.jks
+keystorePassword: <REQUIRED>
+workloads:
+  - workloadName: dda_customer
+    indexName: mbb_customer_info
+    workloadThreads: 1
+    workloadSleep: 250
+    primaryShardCount: 3
+    replicaShardCount: 0
+    peakTime: 19:00:00
+    purgeOnStart: true
+    backendBulkQueueDepth: 0
+    fields:
+      - name: eai
+        type: double
+        range: 0,3300000
+        primary_key: true
+      - name: name
+        type: full_name
+      - name: location
+        type: state
+      - name: address
+        type: address
+
+  - workloadName: dda_transaction_history
+    indexName: mbb_dda_transaction_history
+    workloadThreads: 1
+    workloadSleep: 250
+    primaryShardCount: 3
+    replicaShardCount: 0
+    peakTime: 19:00:00
+    purgeOnStart: true
+    backendBulkQueueDepth: 0
+    fields:
+      - name: eai
+        type: double
+        range: 0,3300000
+        primary_key: true
+      - type: float
+        range: -1000000,1000000
+
+  - workloadName: customer_support_history
+    indexName: mbb_customer_support_history
+    workloadThreads: 1
+    workloadSleep: 250
+    primaryShardCount: 3
+    replicaShardCount: 0
+    peakTime: 19:00:00
+    purgeOnStart: true
+    backendBulkQueueDepth: 0
+    fields:
+      - name: eai
+        type: double
+        range: 0,3300000
+        primary_key: true
+      - name: support_type
+        type: random_string_from_list
+        custom_list: Card-Reissue, Check-Balance, Address-Change, Close-Account, Fraud-Dispute, Information-Change
+
+  - workloadName: lockbox_service_history
+    indexName: mbb_lockbox_history
+    workloadThreads: 1
+    workloadSleep: 250
+    primaryShardCount: 3
+    replicaShardCount: 0
+    peakTime: 19:00:00
+    purgeOnStart: true
+    backendBulkQueueDepth: 0
+    fields:
+      - name: eai
+        type: double
+        range: 0,3300000
+        primary_key: true
+      - name: vault_id
+        type: double
+        range: 0,1200000
+      - name: access_date
+        type: date
+
+  - workloadName: branch_service_history
+    indexName: mbb_branch_service_history
+    workloadThreads: 1
+    workloadSleep: 250
+    primaryShardCount: 3
+    replicaShardCount: 0
+    peakTime: 19:00:00
+    purgeOnStart: true
+    backendBulkQueueDepth: 0
+    fields:
+      - name: eai
+        type: double
+        range: 0,3300000
+        primary_key: true
+      - name: activity_type
+        type: random_string_from_list
+        custom_list: deposit, withdrawl
+      - name: amount
+        type: float
+        range: -1000000,1000000
+
+  - workloadName: credit_card_history
+    indexName: mbb_credit_card_history
+    workloadThreads: 1
+    workloadSleep: 250
+    primaryShardCount: 3
+    replicaShardCount: 0
+    peakTime: 19:00:00
+    purgeOnStart: true
+    backendBulkQueueDepth: 0
+    fields:
+      - name: eai
+        type: double
+        range: 0,3300000
+        primary_key: true
+      - name: credit_card_no
+        type: credit_card_number
+      - name: merchant_id
+        type: double
+        range: 0,100000000
+      - name: trans_type
+        type: random_string_from_list
+        custom_list: pre-auth,auth,decline,inquiry,memo

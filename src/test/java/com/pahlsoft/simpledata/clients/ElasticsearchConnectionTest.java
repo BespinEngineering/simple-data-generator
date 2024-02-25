@@ -9,7 +9,7 @@ import co.elastic.clients.elasticsearch.indices.*;
 import co.elastic.clients.json.JsonData;
 import co.elastic.clients.transport.endpoints.BooleanResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pahlsoft.simpledata.generator.WorkloadGenerator;
+import com.pahlsoft.simpledata.generator.WorkloadGeneratorJSON;
 import com.pahlsoft.simpledata.model.Configuration;
 import com.pahlsoft.simpledata.model.Workload;
 import org.junit.Assert;
@@ -45,13 +45,13 @@ class ElasticsearchConnectionTest {
 
         // Stubbed Configuration for SDG
         configuration = new Configuration();
-        configuration.setElasticsearchScheme("https");
-        configuration.setElasticsearchHost("localhost");
-        configuration.setElasticsearchPort(container.getFirstMappedPort());
-        configuration.setElasticsearchUser("elastic");
-        configuration.setElasticsearchPassword("letme1n");
-        configuration.setElasticsearchApiKeyEnabled(false);
-        configuration.setElasticsearchApiKeyId("");
+        configuration.setBackendScheme("https");
+        configuration.setBackendHost("localhost");
+        configuration.setBackendPort(container.getFirstMappedPort());
+        configuration.setBackendUser("elastic");
+        configuration.setBackendPassword("letme1n");
+        configuration.setBackendApiKeyEnabled(false);
+        configuration.setBackendApiKeySecret("");
         configuration.setKeystoreLocation(""); // Intentionally left empty for Unit testing w/ TestContainers
         configuration.setKeystorePassword(""); // Intentionally left empty for Unit testing w/ TestContainers
 
@@ -65,7 +65,7 @@ class ElasticsearchConnectionTest {
         workload.setReplicaShardCount(1);
         workload.setPeakTime("19:00:00");
         workload.setPurgeOnStart(false);
-        workload.setElasticsearchBulkQueueDepth(0);
+        workload.setBackendBulkQueueDepth(0);
 
         // Sample Data for Workload
         Map<String, Object> singleWorkload = new HashMap<>();
@@ -112,7 +112,7 @@ class ElasticsearchConnectionTest {
     static void buildAndIndexSingleDocument() throws Exception {
         //TODO: Create a document in the test index.  Following tests will work after this one is created.
         ObjectMapper objectMapper = new ObjectMapper();
-        String json = objectMapper.writeValueAsString(WorkloadGenerator.buildDocument(workload));
+        String json = objectMapper.writeValueAsString(WorkloadGeneratorJSON.buildDocument(workload));
         Reader input = new StringReader(json);
         IndexRequest<JsonData> request = IndexRequest.of(i -> i
                 .index(workload.getIndexName())

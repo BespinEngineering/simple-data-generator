@@ -1,11 +1,12 @@
-elasticsearchScheme: https
-elasticsearchHost: <REQUIRED>
-elasticsearchPort: 9243
-elasticsearchUser: elastic
-elasticsearchPassword: <REQUIRED>
-elasticsearchApiKeyEnabled: false
-elasticsearchApiKeyId: <OPTIONAL>
-elasticsearchApiKeySecret: <OPTIONAL>
+backendType: ELASTICSEARCH
+backendScheme: https
+backendHost: <REQUIRED>
+backendPort: <REQUIRED>
+backendUser: elastic
+backendPassword: <REQUIRED>
+backendApiKeyEnabled: false
+backendApiKeyId: <OPTIONAL>
+backendApiKeySecret: <OPTIONAL>
 keystoreLocation: keystore.jks
 keystorePassword: <REQUIRED>
 workloads:
@@ -17,7 +18,7 @@ workloads:
     replicaShardCount: 0
     peakTime: 19:00:00
     purgeOnStart: true
-    elasticsearchBulkQueueDepth: 0
+    backendBulkQueueDepth: 0
     fields:
       - name: eai
         type: double
@@ -37,7 +38,7 @@ workloads:
     replicaShardCount: 0
     peakTime: 19:00:00
     purgeOnStart: true
-    elasticsearchBulkQueueDepth: 0
+    backendBulkQueueDepth: 0
     fields:
       - name: eai
         type: double
@@ -53,7 +54,7 @@ workloads:
     replicaShardCount: 0
     peakTime: 19:00:00
     purgeOnStart: true
-    elasticsearchBulkQueueDepth: 0
+    backendBulkQueueDepth: 0
     fields:
       - name: eai
         type: double
@@ -70,7 +71,7 @@ workloads:
     replicaShardCount: 0
     peakTime: 19:00:00
     purgeOnStart: true
-    elasticsearchBulkQueueDepth: 0
+    backendBulkQueueDepth: 0
     fields:
       - name: eai
         type: double
@@ -89,7 +90,7 @@ workloads:
     replicaShardCount: 0
     peakTime: 19:00:00
     purgeOnStart: true
-    elasticsearchBulkQueueDepth: 0
+    backendBulkQueueDepth: 0
     fields:
       - name: eai
         type: double
@@ -109,7 +110,7 @@ workloads:
     replicaShardCount: 0
     peakTime: 19:00:00
     purgeOnStart: true
-    elasticsearchBulkQueueDepth: 0
+    backendBulkQueueDepth: 0
     fields:
       - name: eai
         type: double
