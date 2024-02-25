@@ -1,9 +1,8 @@
 # Simple Data Generator for BigData
 The purpose of this project is to ingest some sample data into SQL and NON-SQL products like Elasticsearch, Clickhouse and others. 
-If you have a model in mind, but aren't ready to build piplines or deploy write code to index/insert data, this project might help you.
+If you have a model in mind, but aren't ready to build pipelines or deploy write code to index/insert data, this project might help you.
 
-It's multithreaded engine so you can generate a fair amount of load.
-It's a refactor of ajpahl1008/sample-data-generator eliminating code for each new workload.
+The engine is multithreaded, so you can generate a fair amount of load.
 It's completely YAML driven. Yay Yaml!!!
 
 Advice: Although this code is scalable and multithreaded, it's primary purpose is to generate data not a benchmarking tool. Yet. 
@@ -48,12 +47,18 @@ Currently, we only need it for connecting to Elasticsearch clusters.
 # ./build_keystore.bash <keystore_password> <elasticsearch_host> <elasticsearch_port>
 ```
 **Arguments:** 
-  * keystore_password: something you arbitrarily set when you create they keystore for the first time.
-  * elasticsearch_host: exclude the http/https it's just the FQDN that resolves to your cluster.
-  * elasticsearch_port: whatever TLS port you've configured for Elasticsearch.  If you're on Elasticsearch Service (cloud.elastic.co) it's 9243.
+  * ```keystore_password``` something you arbitrarily set when you create they keystore for the first time.
+  * ```elasticsearch_host``` exclude the http/https it's just the FQDN that resolves to your cluster.
+  * ```elasticsearch_port``` whatever TLS port you've configured for Elasticsearch.  If you're on Elasticsearch Service (cloud.elastic.co) it's 9243.
 
 
 ## Setup Step 2: Create A configuration YAML (yml) file.
+
+##### See more detailed documentation on Configs, Workloads and Fields
+<P>Configuration Parameters [Documentation](https://github.com/ajpahl1008/simple-data-generator/blob/master/docs/configuration_parameters.md)
+<P>Workload Parameters [Documentation](https://github.com/ajpahl1008/simple-data-generator/blob/master/docs/workload_parameters.md)
+<P>Supported Field Parameters [Documentation](https://github.com/ajpahl1008/simple-data-generator/blob/master/docs/supported_fields.md)
+
 
 There are few configuration examples in the ./examples directory in this repo, but here is the basic structure.
 Fields listed as <OPTIONAL> can be left blank or omitted altogether. 
@@ -131,18 +136,4 @@ workloads:
       - name: inventory_part_number
         type: int
    ...
-```
-
-### See more detailed documentation on Configs, Workloads and Fields 
-<P>Configuration Parameters [Documentation](https://github.com/ajpahl1008/simple-data-generator/blob/master/docs/configuration_parameters.md)
-<P>Workload Parameters [Documentation](https://github.com/ajpahl1008/simple-data-generator/blob/master/docs/workload_parameters.md)
-<P>Supported Field Parameters [Documentation](https://github.com/ajpahl1008/simple-data-generator/blob/master/docs/supported_fields.md) 
-
-
-## Running with Elastic Application Performance Monitoring (APM)
-```
-complete the <NEED_THIS> fields in the runme_apm.bash script
-Simply, you need the URL for your APM server and the token provided by APM.
-
-Additionally, there's a debug script runme_apm_debug.bash if things get confusing or not going smoothly.
 ```
