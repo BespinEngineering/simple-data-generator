@@ -55,9 +55,12 @@ Currently, we only need it for connecting to Elasticsearch clusters.
 ## Setup Step 2: Create A configuration YAML (yml) file.
 
 ##### See more detailed documentation on Configs, Workloads and Fields
-<P>Configuration Parameters [Documentation](https://github.com/bespinengineering/simple-data-generator/blob/master/docs/configuration_parameters.md)
-<P>Workload Parameters [Documentation](https://github.com/bespinengineering/simple-data-generator/blob/master/docs/workload_parameters.md)
-<P>Supported Field Parameters [Documentation](https://github.com/bespinengineering/simple-data-generator/blob/master/docs/supported_fields.md)
+Configuration Parameters [Documentation](https://github.com/bespinengineering/simple-data-generator/blob/master/docs/configuration_parameters.md) 
+
+Workload Parameters [Documentation](https://github.com/bespinengineering/simple-data-generator/blob/master/docs/workload_parameters.md) 
+
+Supported Field Parameters [Documentation](https://github.com/bespinengineering/simple-data-generator/blob/master/docs/supported_fields.md) 
+
 
 
 There are few configuration examples in the ./examples directory in this repo, but here is the basic structure.
