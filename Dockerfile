@@ -2,10 +2,14 @@
 FROM alpine:3.18
 
 # Update the package manager and install OpenSSL
-RUN apk update && apk add bash && apk add openssl
+RUN apk update && apk add zsh && apk add openssl
 
 # Install the latest version of OpenJDK (JRE)
 RUN apk add openjdk17 && apk update
+
+# Setup container to run as non-root user
+RUN adduser -D -g "Simple Data Generator ID" sdg sdg
+USER sdg
 
 # Set environment variables (optional)
 ENV JAVA_HOME=/usr/lib/jvm/default-jvm

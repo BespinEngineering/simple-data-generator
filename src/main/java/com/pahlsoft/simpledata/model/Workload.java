@@ -9,8 +9,8 @@ public class Workload {
     private int workloadSleep;
     private String indexName;
     private String databaseName;
-
     private String tableName;
+    private String topicName;
     private String backendEngine;
     private List<Map<String,Object>> fields;
     private int backendBulkQueueDepth;
@@ -124,5 +124,13 @@ public class Workload {
 
     public void setBackendEngine(String backendEngine) {
         this.backendEngine = backendEngine;
+    }
+
+    public String getTopicName() {
+        return topicName;
+    }
+
+    public void setTopicName(String topicName) {
+        this.topicName = topicName;
     }
 }

@@ -1,14 +1,12 @@
 package com.pahlsoft.simpledata.engine;
 
-import java.sql.*;
 import java.text.MessageFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Properties;
 
-import com.pahlsoft.simpledata.clients.ClickHouseClient;
-import com.pahlsoft.simpledata.clients.ClickHouseClientUtil;
+import com.pahlsoft.simpledata.clients.KafkaClient;
+import com.pahlsoft.simpledata.clients.KafkaClientUtil;
 import com.pahlsoft.simpledata.generator.WorkloadGeneratorSQL;
 import com.pahlsoft.simpledata.interfaces.Engine;
 import com.pahlsoft.simpledata.model.Configuration;
@@ -22,12 +20,12 @@ public class ClickhouseWorkloadGeneratorEngine implements Engine {
 
     private Workload workload;
 
-    private static ClickHouseClient chClient;
+    private static KafkaClient chClient;
 
     public ClickhouseWorkloadGeneratorEngine(Configuration configuration, Workload workload) {
         this.workload = workload;
         // TODO: This might not be needed as we're using Traditional DB connections. Research using a connection pool.
-        this.chClient = ClickHouseClientUtil.createClient(configuration, workload);
+        this.chClient = KafkaClientUtil.createClient(configuration, workload);
     }
 
     @Override

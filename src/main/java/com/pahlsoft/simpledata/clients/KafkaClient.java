@@ -2,6 +2,7 @@ package com.pahlsoft.simpledata.clients;
 
 
 import com.pahlsoft.simpledata.model.Configuration;
+import com.pahlsoft.simpledata.model.Workload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,17 +16,13 @@ import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 
-public class ClickHouseClient {
-
-    /* TODO: Until there's a RESTFUL friendly Clickhouse client for java,
-    we'll use this approach and not implement the ClientUtil interface method createClient()
-     */
+public class KafkaClient {
 
     static Logger log = LoggerFactory.getLogger(KafkaClient.class);
 
     static private Configuration configuration;
 
-     public ClickHouseClient(Configuration configuration) {
+     public KafkaClient(Configuration configuration) {
         this.configuration = configuration;
 
     }
