@@ -21,8 +21,8 @@ WORKDIR /app
 # Copy the JAR file and the configuration file into the image
 COPY build/libs/simple-data-generator-*-fatJar.jar /app
 COPY java.policy /app
-COPY build_docker_keystore.bash /app
-COPY docker_run.bash /app
+COPY build_docker_keystore.zsh /app
+COPY docker_run.zsh /app
 
 # Run the JAR file with the java command and provide the configuration file as an argument
 CMD ["/app/docker_run.bash"]

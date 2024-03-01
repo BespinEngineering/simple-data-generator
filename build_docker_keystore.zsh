@@ -1,15 +1,15 @@
-#!/bin/bash
+#!/bin/zsh
 
 SCHEME="`cat /config/sdg.yml | grep backendScheme | awk -F\: '{printf $2}' | tr -d '[:blank:]'`"
 BACKEND_TYPE="`cat /config/sdg.yml | grep backendType | awk -F\: '{printf $2}' | tr -d '[:blank:]'`"
 
-if [ "$SCHEME" == "https" ]; then
+if [ "$SCHEME" = "https" ]; then
 
    PASSWORD="`cat /config/sdg.yml | grep keystorePassword | awk -F\: '{print $2}'| tr -d '[:blank:]'`"
    HOST="`cat /config/sdg.yml | grep backendHost | awk -F\: '{printf $2}' | tr -d '[:blank:]'`"
    PORT="`cat /config/sdg.yml | grep backendPort | awk -F\: '{printf $2}' | tr -d '[:blank:]'`"
 
-   if [ "$BACKEND_TYPE" == "ELASTICSEARCH" ]; then
+   if [ "$BACKEND_TYPE" = "ELASTICSEARCH" ]; then
       echo "Creating Keystore entry for Elasticsearch Secure HTTP endpoint"
 
       openssl s_client -connect ${HOST}:${PORT} </dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /app/es_cloud.cert

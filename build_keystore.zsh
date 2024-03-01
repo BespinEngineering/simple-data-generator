@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/zsh 
 
 if [ -z "$3" ];then
   echo "Error: Not enough arguments"

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 
 /app/build_docker_keystore.bash
 
