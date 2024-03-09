@@ -3,18 +3,16 @@ package com.pahlsoft.simpledata.clients;
 
 import com.pahlsoft.simpledata.model.Configuration;
 import com.pahlsoft.simpledata.model.Workload;
+import org.apache.kafka.clients.admin.*;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.KafkaFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.security.cert.X509Certificate;
-import java.util.Base64;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Properties;
 
 public class KafkaClient {
 
@@ -22,106 +20,99 @@ public class KafkaClient {
 
     static private Configuration configuration;
 
-     public KafkaClient(Configuration configuration) {
-        this.configuration = configuration;
+    static private KafkaProducer kafkaProducer;
 
+    static private AdminClient kafkaAdminClient;
+
+    static private Properties config = new Properties();
+
+     public KafkaClient(Configuration configuration) throws Exception {
+
+         this.configuration = configuration;
+
+         config.put("client.id", InetAddress.getLocalHost().getHostName());
+         config.put("bootstrap.servers", configuration.getBackendHost()+":" + configuration.getBackendPort());
+         config.put("acks", "all");
+         config.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+         config.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
+
+         try {
+             this.kafkaProducer = createProducer();
+             log.info("Created Kafka Producer");
+             this.kafkaAdminClient = createAdminClient();
+             log.info("Created Kafka AdminClient");
+         } catch (Exception e) {
+             log.error("Error creating KafkaProducer");
+         }
+
+     }
+
+    private KafkaProducer createProducer() throws Exception {
+        kafkaProducer = new KafkaProducer<String, String>(config);
+        return kafkaProducer;
     }
 
-    static public int executeQuery(String sqlQuery) {
-        int responseCode = 0;
+    @SuppressWarnings("unchecked")
+    public static void publishMessage(String topic, String message) {
+        log.debug("DEBUG: Message being sent to Kafka:{} ",message);
+        kafkaProducer.send(new ProducerRecord<String, String>(topic,  message));
+        kafkaProducer.flush();
+    }
+
+    private AdminClient createAdminClient() {
+        AdminClient client = null;
         try {
-            // Setting up the HTTP connection
-            URL url = new URL(configuration.getBackendScheme() + "://" + configuration.getBackendHost() + ":" + configuration.getBackendPort());
-            log.debug("Connecting to Clickhouse : " + url.toString());
-            if (configuration.getBackendScheme() == "https") {
-                HttpsURLConnection connection = createSecureConnection(url);
-                connection.setRequestMethod("POST");
-                connection.setDoOutput(true);
-
-                // Adding Basic Authentication header
-                connection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString((configuration.getBackendUser() + ":" + configuration.getBackendPassword()).getBytes()));
-
-                // Sending the SQL query
-                byte[] out = sqlQuery.getBytes(StandardCharsets.UTF_8);
-                int length = out.length;
-                connection.setFixedLengthStreamingMode(length);
-                connection.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
-                connection.connect();
-                try (var os = connection.getOutputStream()) {
-                    os.write(out);
-                }
-
-                // Handling the response
-                responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    log.debug("Query executed successfully");
-                } else {
-                    log.error("HTTP error code: " + responseCode);
-                }
-            } else {
-                HttpURLConnection connection = createConnection(url);
-                connection.setRequestMethod("POST");
-                connection.setDoOutput(true);
-
-                // Adding Basic Authentication header
-                connection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString((configuration.getBackendUser() + ":" + configuration.getBackendPassword()).getBytes()));
-
-                // Sending the SQL query
-                byte[] out = sqlQuery.getBytes(StandardCharsets.UTF_8);
-                int length = out.length;
-                connection.setFixedLengthStreamingMode(length);
-                connection.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
-                connection.connect();
-                try (var os = connection.getOutputStream()) {
-                    os.write(out);
-                }
-
-                // Handling the response
-                responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    log.debug("Query executed successfully");
-                } else {
-                    log.error("HTTP error code: " + responseCode);
-                }
+            client = AdminClient.create(config);
+            if (client == null) {
+                log.error("Unable to Initialize Kafka Admin Client. Exiting.");
+                System.exit(1);
             }
-
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("Error creating Kafka Admin Client");
         }
+        return client;
+    }
 
-        return responseCode;
+    public static boolean createTopic(Workload workload) {
+         boolean result = true;
+         try {
+             ArrayList<NewTopic> topics = new ArrayList<>();
+             topics.add(new NewTopic(workload.getTopicName(),workload.getNumPartitions(), workload.getReplicationFactor()));
+             CreateTopicsResult createTopicsResult = kafkaAdminClient.createTopics(topics);
+             KafkaFuture<Void> future = createTopicsResult.values().get(workload.getTopicName());
+
+             if (future != null) {
+                 future.get();
+                 log.info("Created Topic: {}", workload.getTopicName());
+                 return result;
+             }
+
+         } catch (Exception e) {
+        log.error("Error Creating Topic: {}", workload.getTopicName());
+        result = false;
+    }
+        return result;
 
     }
 
-    private static HttpsURLConnection createSecureConnection(URL url) throws Exception {
-        TrustManager[] trustAllCerts = new TrustManager[]{
-                new X509TrustManager() {
-                    public X509Certificate[] getAcceptedIssuers() {
-                        return null;
-                    }
+    public static boolean deleteTopic(Workload workload) {
+        boolean result = true;
+        try {
+            DeleteTopicsResult deleteTopicsResult = kafkaAdminClient.deleteTopics(Collections.singleton(workload.getTopicName()));
+            KafkaFuture<Void> future = deleteTopicsResult.topicNameValues().get(workload.getTopicName());
 
-                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
-                    }
-
-                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
-                    }
-                }
-        };
-
-        SSLContext sc = SSLContext.getInstance("SSL");
-        sc.init(null, trustAllCerts, new java.security.SecureRandom());
-        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-
-        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-
-        return connection;
+            if (future != null) {
+                future.get();
+                log.info("Deleted Topic: {}", workload.getTopicName());
+                return result;
+            }
+        } catch (Exception e) {
+            log.error("Error Deleting Topic: {}", workload.getTopicName());
+            result = false;
+        }
+        return result;
 
     }
-
-    private static HttpURLConnection createConnection(URL url) throws Exception{
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        return connection;
-    }
-
 
 }

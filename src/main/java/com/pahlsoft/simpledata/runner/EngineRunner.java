@@ -3,6 +3,7 @@ package com.pahlsoft.simpledata.runner;
 import com.pahlsoft.simpledata.clients.ElasticsearchClientUtil;
 import com.pahlsoft.simpledata.engine.ClickhouseWorkloadGeneratorEngine;
 import com.pahlsoft.simpledata.engine.ElasticsearchWorkloadGeneratorEngine;
+import com.pahlsoft.simpledata.engine.KafkaWorkloadGeneratorEngine;
 import com.pahlsoft.simpledata.model.Configuration;
 import com.pahlsoft.simpledata.model.Workload;
 import com.pahlsoft.simpledata.threader.WorkloadGeneratorEngineThreader;
@@ -32,14 +33,14 @@ public class EngineRunner {
 
                 switch (configuration.getBackendType())  {
                     case "ELASTICSEARCH":
-                        // TODO: May need to create something cleaner for ALL backend types but for now this works.
                         ElasticsearchClientUtil.setupElasticsearch(configuration,workload);
                         WorkloadGeneratorEngineThreader.runEngine(workload.getWorkloadThreads(), new ElasticsearchWorkloadGeneratorEngine(configuration,workload));
                         break;
                     case "CLICKHOUSE":
-                        //TODO: Code the Clickhouse Generator Engine
-                        System.out.println("Code Click House Engine...");
                         WorkloadGeneratorEngineThreader.runEngine(workload.getWorkloadThreads(),new ClickhouseWorkloadGeneratorEngine(configuration,workload));
+                        break;
+                    case "KAFKA":
+                        WorkloadGeneratorEngineThreader.runEngine(workload.getWorkloadThreads(),new KafkaWorkloadGeneratorEngine(configuration,workload));
                         break;
                     case "CASSANDRA":
                     case "SNOWFLAKE":

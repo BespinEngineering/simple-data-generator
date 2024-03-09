@@ -16,6 +16,9 @@ import org.junit.Assert;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
@@ -23,7 +26,6 @@ import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.*;
-
 
 class ElasticsearchConnectionTest {
 

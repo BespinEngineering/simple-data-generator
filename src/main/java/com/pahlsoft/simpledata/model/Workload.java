@@ -17,6 +17,8 @@ public class Workload {
     private Boolean purgeOnStart;
     private int primaryShardCount;
     private int replicaShardCount;
+    private int numPartitions;
+    private short replicationFactor;
     private String peakTime;
 
     public Workload() {
@@ -132,5 +134,22 @@ public class Workload {
 
     public void setTopicName(String topicName) {
         this.topicName = topicName;
+    }
+
+
+    public int getNumPartitions() {
+        return numPartitions;
+    }
+
+    public void setNumPartitions(int numPartitions) {
+        this.numPartitions = numPartitions;
+    }
+
+    public short getReplicationFactor() {
+        return replicationFactor;
+    }
+
+    public void setReplicationFactor(short replicationFactor) {
+        this.replicationFactor = replicationFactor;
     }
 }

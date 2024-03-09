@@ -5,8 +5,8 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
-import com.pahlsoft.simpledata.clients.KafkaClient;
-import com.pahlsoft.simpledata.clients.KafkaClientUtil;
+import com.pahlsoft.simpledata.clients.ClickHouseClient;
+import com.pahlsoft.simpledata.clients.ClickHouseClientUtil;
 import com.pahlsoft.simpledata.generator.WorkloadGeneratorSQL;
 import com.pahlsoft.simpledata.interfaces.Engine;
 import com.pahlsoft.simpledata.model.Configuration;
@@ -16,16 +16,15 @@ import org.slf4j.LoggerFactory;
 
 
 public class ClickhouseWorkloadGeneratorEngine implements Engine {
-    static Logger log = LoggerFactory.getLogger(ElasticsearchWorkloadGeneratorEngine.class);
+    static Logger log = LoggerFactory.getLogger(ClickhouseWorkloadGeneratorEngine.class);
 
     private Workload workload;
 
-    private static KafkaClient chClient;
+    private static ClickHouseClient chClient;
 
     public ClickhouseWorkloadGeneratorEngine(Configuration configuration, Workload workload) {
         this.workload = workload;
-        // TODO: This might not be needed as we're using Traditional DB connections. Research using a connection pool.
-        this.chClient = KafkaClientUtil.createClient(configuration, workload);
+        this.chClient = ClickHouseClientUtil.createClient(configuration, workload);
     }
 
     @Override
@@ -50,11 +49,6 @@ public class ClickhouseWorkloadGeneratorEngine implements Engine {
                 try {
                     //Bulk Records
                     if (workload.getBackendBulkQueueDepth() > 0) {
-
-                        for (int bulkItems = 0; bulkItems < workload.getBackendBulkQueueDepth(); bulkItems++) {
-
-                        }
-
                         int response = 0;
                         try {
                             response = chClient.executeQuery(WorkloadGeneratorSQL.buildBulkRecord(workload));

@@ -122,8 +122,7 @@ public class ClickHouseClient {
     }
 
     private static HttpURLConnection createConnection(URL url) throws Exception{
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        return connection;
+        return (HttpURLConnection) url.openConnection();
     }
 
 
