@@ -37,6 +37,8 @@ public class KafkaWorkloadGeneratorEngine implements Engine {
             log.info("Thread[" + Thread.currentThread() + "] Workload Thread Count: " + workload.getWorkloadThreads());
             log.info("Thread[" + Thread.currentThread() + "] Workload Sleep Time (ms): " + workload.getWorkloadSleep());
             log.info("Thread[" + Thread.currentThread() + "] Purge on Start Setting: " + workload.getPurgeOnStart().toString());
+            log.info("Thread[" + Thread.currentThread() + "] Number of Partitions: " + workload.getNumPartitions());
+            log.info("Thread[" + Thread.currentThread() + "] Number of Replicas: " + workload.getReplicaShardCount());
             log.info("Thread[" + Thread.currentThread() + "] Bulk Queue Depth: " + workload.getBackendBulkQueueDepth());
         }
 
