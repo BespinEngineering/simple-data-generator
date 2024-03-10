@@ -1,13 +1,16 @@
 # Workload Parameters
 
 ### Generic Parameters:
+
 ```workloadName``` String that defines a name for a workload<P>
 ```workloadThreads``` Number of threads that this workload will run in parallel<P>
 ```workloadSleep``` Number in milliseconds that the engine will pause between sending data to backends<P>
 ```peakTime``` (OPTIONAL) If filled in the engine will ramp up and down the sleep time to simulate peak times for workloads.<P>
 ```purgeOnStart``` Boolean that triggers the engine to delete any previous data based on the current workload definition.<P>
-```backendBulkQueueDepth``` Number that represents batching of entities being sent form the engine. If set to zero, batching is disabled.
+```backendBulkQueueDepth``` Number that represents batching of entities being sent form the engine. If set to zero, batching is disabled.<P>
+
 -------------
+
 ### Clickhouse Specific Parameters:<p>
 ```databaseName``` Clickhouse Database<P>
 ```tableName``` Clickhouse Table<P>
