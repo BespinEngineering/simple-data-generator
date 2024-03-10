@@ -1,5 +1,5 @@
 # Simple Data Generator for BigData
-The purpose of this project is to ingest some sample data into SQL and NON-SQL products like Elasticsearch, Clickhouse and others. 
+The purpose of this project is to ingest some sample data into SQL and NON-SQL products like Elasticsearch, Clickhouse, Kafka and others. 
 If you have a model in mind, but aren't ready to build pipelines or deploy write code to index/insert data, this project might help you.
 
 The engine is multithreaded, so you can generate a fair amount of load.
