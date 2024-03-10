@@ -1,8 +1,8 @@
-#!/bin/bash 
+#!/bin/zsh 
 
 if [ -z "$3" ];then
   echo "Error: Not enough arguments"
-  echo "Usage: build_keystore.ksh <keystore_password> <es_host> <es_port>"
+  echo "Usage: build_keystore.zsh <keystore_password> <es_host> <es_port>"
   exit 1;
 fi
 

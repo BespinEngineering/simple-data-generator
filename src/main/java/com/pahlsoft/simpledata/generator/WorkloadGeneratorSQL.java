@@ -1,6 +1,6 @@
 package com.pahlsoft.simpledata.generator;
 
-import com.pahlsoft.simpledata.clients.ClickHouseClientUtil;
+import com.pahlsoft.simpledata.clients.KafkaClientUtil;
 import com.pahlsoft.simpledata.model.Workload;
 import net.datafaker.Faker;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ public class WorkloadGeneratorSQL {
     }
 
     private static final Faker faker = new Faker(new Locale("en-US"));
-    static Logger log = LoggerFactory.getLogger(ClickHouseClientUtil.class);
+    static Logger log = LoggerFactory.getLogger(KafkaClientUtil.class);
 
     public static String buildBulkRecord(Workload workload) {
         StringBuffer bulkRecord = new StringBuffer();

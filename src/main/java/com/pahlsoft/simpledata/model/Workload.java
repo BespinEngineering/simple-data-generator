@@ -9,14 +9,16 @@ public class Workload {
     private int workloadSleep;
     private String indexName;
     private String databaseName;
-
     private String tableName;
+    private String topicName;
     private String backendEngine;
     private List<Map<String,Object>> fields;
     private int backendBulkQueueDepth;
     private Boolean purgeOnStart;
     private int primaryShardCount;
     private int replicaShardCount;
+    private int numPartitions;
+    private short replicationFactor;
     private String peakTime;
 
     public Workload() {
@@ -124,5 +126,30 @@ public class Workload {
 
     public void setBackendEngine(String backendEngine) {
         this.backendEngine = backendEngine;
+    }
+
+    public String getTopicName() {
+        return topicName;
+    }
+
+    public void setTopicName(String topicName) {
+        this.topicName = topicName;
+    }
+
+
+    public int getNumPartitions() {
+        return numPartitions;
+    }
+
+    public void setNumPartitions(int numPartitions) {
+        this.numPartitions = numPartitions;
+    }
+
+    public short getReplicationFactor() {
+        return replicationFactor;
+    }
+
+    public void setReplicationFactor(short replicationFactor) {
+        this.replicationFactor = replicationFactor;
     }
 }

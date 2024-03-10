@@ -2,7 +2,6 @@ package com.pahlsoft.simpledata.clients;
 
 
 import com.pahlsoft.simpledata.model.Configuration;
-import com.pahlsoft.simpledata.model.Workload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +21,7 @@ public class ClickHouseClient {
     we'll use this approach and not implement the ClientUtil interface method createClient()
      */
 
-    static Logger log = LoggerFactory.getLogger(ClickHouseClient.class);
+    static Logger log = LoggerFactory.getLogger(KafkaClient.class);
 
     static private Configuration configuration;
 
@@ -123,8 +122,7 @@ public class ClickHouseClient {
     }
 
     private static HttpURLConnection createConnection(URL url) throws Exception{
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        return connection;
+        return (HttpURLConnection) url.openConnection();
     }
 
 

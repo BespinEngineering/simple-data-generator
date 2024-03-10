@@ -1,0 +1,34 @@
+backendType: KAFKA
+backendScheme: http
+backendHost: <REQUIRED>
+backendPort: <REQUIRED>
+backendUser: default
+backendPassword: <REQUIRED>
+backendApiKeyEnabled: false
+backendApiKeyId:
+backendApiKeySecret:
+keystoreLocation:
+keystorePassword:
+workloads:
+  - workloadName: dda_customer
+    databaseName: dda_customer
+    tableName: mbb_customer_info
+    backendEngine: MergeTree
+    workloadThreads: 8
+    workloadSleep: 10
+    peakTime:
+    purgeOnStart: true
+    numPartitions: 1
+    replicationFactor: 0
+    backendBulkQueueDepth: 50000
+    fields:
+      - name: eai
+        type: double
+        primary_key: true
+        range: 0,3300000
+      - name: name
+        type: full_name
+      - name: location
+        type: state
+      - name: address
+        type: full_address

@@ -1,72 +1,76 @@
 package com.pahlsoft.simpledata.engine;
 
+
 import java.text.MessageFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-
-import com.pahlsoft.simpledata.clients.ClickHouseClient;
-import com.pahlsoft.simpledata.clients.ClickHouseClientUtil;
-import com.pahlsoft.simpledata.generator.WorkloadGeneratorSQL;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pahlsoft.simpledata.clients.KafkaClient;
+import com.pahlsoft.simpledata.clients.KafkaClientUtil;
+import com.pahlsoft.simpledata.generator.WorkloadGeneratorJSON;
 import com.pahlsoft.simpledata.interfaces.Engine;
 import com.pahlsoft.simpledata.model.Configuration;
 import com.pahlsoft.simpledata.model.Workload;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-public class ClickhouseWorkloadGeneratorEngine implements Engine {
-    static Logger log = LoggerFactory.getLogger(ClickhouseWorkloadGeneratorEngine.class);
+public class KafkaWorkloadGeneratorEngine implements Engine {
+    static Logger log = LoggerFactory.getLogger(KafkaWorkloadGeneratorEngine.class);
 
     private Workload workload;
 
-    private static ClickHouseClient chClient;
+    private static KafkaClient kafkaClient;
 
-    public ClickhouseWorkloadGeneratorEngine(Configuration configuration, Workload workload) {
+    public KafkaWorkloadGeneratorEngine(Configuration configuration, Workload workload) {
         this.workload = workload;
-        this.chClient = ClickHouseClientUtil.createClient(configuration, workload);
+        this.kafkaClient = KafkaClientUtil.createClient(configuration, workload);
     }
 
     @Override
     public void run() {
 
         if (log.isInfoEnabled()) {
-            log.info(MessageFormat.format( "Thread[{1}] Initiating ClickHouse Workload: {0}", workload.getWorkloadName(), Thread.currentThread().getId()));
-            log.info("Thread[" + Thread.currentThread() + "] Workload Database: " + workload.getDatabaseName());
-            log.info("Thread[" + Thread.currentThread() + "] Workload Table: " + workload.getTableName());
+            log.info(MessageFormat.format( "Thread[{1}] Initiating Kafka Workload: {0}", workload.getWorkloadName(), Thread.currentThread().getId()));
+            log.info("Thread[" + Thread.currentThread() + "] Workload Topic: " + workload.getTopicName());
             log.info("Thread[" + Thread.currentThread() + "] Workload Thread Count: " + workload.getWorkloadThreads());
             log.info("Thread[" + Thread.currentThread() + "] Workload Sleep Time (ms): " + workload.getWorkloadSleep());
             log.info("Thread[" + Thread.currentThread() + "] Purge on Start Setting: " + workload.getPurgeOnStart().toString());
+            log.info("Thread[" + Thread.currentThread() + "] Number of Partitions: " + workload.getNumPartitions());
+            log.info("Thread[" + Thread.currentThread() + "] Number of Replicas: " + workload.getReplicaShardCount());
             log.info("Thread[" + Thread.currentThread() + "] Bulk Queue Depth: " + workload.getBackendBulkQueueDepth());
         }
 
         //////////////////////////
         // MAIN ENGINE LOOP BELOW
         //////////////////////////
-
+        ObjectMapper objectMapper = new ObjectMapper();
         boolean engineRun = true;
         while (engineRun) {
                 try {
                     //Bulk Records
                     if (workload.getBackendBulkQueueDepth() > 0) {
                         int response = 0;
-                        try {
-                            response = chClient.executeQuery(WorkloadGeneratorSQL.buildBulkRecord(workload));
-                            log.debug("Inserted {} Bulk Records",workload.getBackendBulkQueueDepth());
-                        } catch (Exception e) {
+
+                        for (int bulkItems = 0; bulkItems < workload.getBackendBulkQueueDepth(); bulkItems++) {
+                          try {
+                            kafkaClient.publishMessage(workload.getTopicName(), objectMapper.writeValueAsString(WorkloadGeneratorJSON.buildDocument(workload)));
+                          } catch (Exception e) {
                             log.error("Error Inserting Bulk {} Records", workload.getBackendBulkQueueDepth());
                             log.error("HTTP Response Code: {}",response);
                             log.error(e.getMessage());
+
+                          }
                         }
 
                     // Single Record
                     } else {
-                        int response = 0;
+
                         try {
-                            response = chClient.executeQuery(WorkloadGeneratorSQL.buildSingleRecord(workload));
+                            kafkaClient.publishMessage(workload.getTopicName(), objectMapper.writeValueAsString(WorkloadGeneratorJSON.buildDocument(workload)));
                         } catch (Exception e) {
-                            log.error("Error Inserting Single Record");
-                            log.error("HTTP Response Code: {}",response);
+                            log.error("Error Inserting Single Message");
                             log.error(e.getMessage());
 
                         }
