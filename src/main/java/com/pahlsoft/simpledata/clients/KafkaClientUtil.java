@@ -4,15 +4,8 @@ import com.pahlsoft.simpledata.interfaces.ClientUtil;
 import com.pahlsoft.simpledata.model.Configuration;
 import com.pahlsoft.simpledata.model.Workload;
 
-import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.NewTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Properties;
-
 
 public class KafkaClientUtil implements ClientUtil {
 

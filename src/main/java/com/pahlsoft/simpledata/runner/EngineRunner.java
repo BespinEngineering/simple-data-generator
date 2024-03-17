@@ -4,6 +4,7 @@ import com.pahlsoft.simpledata.clients.ElasticsearchClientUtil;
 import com.pahlsoft.simpledata.engine.ClickhouseWorkloadGeneratorEngine;
 import com.pahlsoft.simpledata.engine.ElasticsearchWorkloadGeneratorEngine;
 import com.pahlsoft.simpledata.engine.KafkaWorkloadGeneratorEngine;
+import com.pahlsoft.simpledata.engine.RabbitMQWorkloadGeneratorEngine;
 import com.pahlsoft.simpledata.model.Configuration;
 import com.pahlsoft.simpledata.model.Workload;
 import com.pahlsoft.simpledata.threader.WorkloadGeneratorEngineThreader;
@@ -41,6 +42,9 @@ public class EngineRunner {
                         break;
                     case "KAFKA":
                         WorkloadGeneratorEngineThreader.runEngine(workload.getWorkloadThreads(),new KafkaWorkloadGeneratorEngine(configuration,workload));
+                        break;
+                    case "RABBITMQ":
+                        WorkloadGeneratorEngineThreader.runEngine(workload.getWorkloadThreads(),new RabbitMQWorkloadGeneratorEngine(configuration,workload));
                         break;
                     case "CASSANDRA":
                     case "SNOWFLAKE":
