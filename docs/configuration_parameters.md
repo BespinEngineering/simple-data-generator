@@ -15,7 +15,7 @@
 
 ## Example Clickhouse Configuration
 ```
- backendType: CLICKHOUSE
+backendType: CLICKHOUSE
 backendScheme: https
 backendHost: hostname.dns.com
 backendPort: 8123

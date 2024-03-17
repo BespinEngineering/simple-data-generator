@@ -3,46 +3,44 @@ package com.pahlsoft.simpledata.clients;
 import com.pahlsoft.simpledata.model.Configuration;
 import com.pahlsoft.simpledata.model.Workload;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.containers.RabbitMQContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.util.*;
-public class KafkaConnectionTest {
+public class RabbitMQConnectionTest {
 
-    static Logger log = LoggerFactory.getLogger(KafkaConnectionTest.class);
-    private static KafkaContainer container;
+    static Logger log = LoggerFactory.getLogger(RabbitMQConnectionTest.class);
+    private static RabbitMQContainer container;
 
     private static Configuration configuration;
     private static Workload workload;
-    private static KafkaClient kafkaClient;
+
+    private static RabbitMQClient rabbitMQClient;
 
     private static List<Map<String, Object>> workloadMap = new ArrayList<>();
 
     @BeforeAll
     static void setup() throws Exception {
-        // TODO: Add Security later
-        container = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka"));
-        container.withReuse(true);
+        container = new RabbitMQContainer(DockerImageName.parse("rabbitmq:3.7.25-management-alpine"));
+        container.withReuse(true).withAdminPassword("letme1n");
         container.start();
         loadConfigAndWorkload();
     }
 
     private static void loadConfigAndWorkload() throws Exception{
-        log.info("Connecting to Kafka: {}",container.getBootstrapServers());
-        System.out.println("Connecting to Kafka: " + container.getBootstrapServers());
+        log.info("Connecting to RabbitMQ: {}",container.getHttpPort());
+        System.out.println("Connecting to RabbitMQ: " + container.getHttpPort());
 
         // Stubbed Configuration for SDG
         configuration = new Configuration();
-        configuration.setBackendType("KAFKA");
+        configuration.setBackendType("RABBITMQ");
         configuration.setBackendScheme("http");
         configuration.setBackendHost("localhost");
-        configuration.setBackendPort(container.getMappedPort(9093)); // Port needed to talk as Kafka Client
-        configuration.setBackendUser("");
-        configuration.setBackendPassword("");
+        configuration.setBackendPort(container.getMappedPort(5672)); // Port needed to talk as RabbitMQ Client
+        configuration.setBackendUser("guest");
+        configuration.setBackendPassword("letme1n");
         configuration.setBackendApiKeyEnabled(false);
         configuration.setBackendApiKeySecret("");
         configuration.setKeystoreLocation(""); // Intentionally left empty for Unit testing w/ TestContainers
@@ -51,7 +49,7 @@ public class KafkaConnectionTest {
         // Workload for SDG
         workload = new Workload();
         workload.setWorkloadName("TestLoad");
-        workload.setTopicName("JUNIT_TEST_TOPIC");
+        workload.setQueueName("JUNIT.TEST.QUEUE");
         workload.setNumPartitions(1);
         workload.setReplicationFactor((short)1);
         workload.setWorkloadThreads(1);
@@ -79,25 +77,23 @@ public class KafkaConnectionTest {
 
         workload.setFields(workloadMap);
 
-        kafkaClient = new KafkaClient(configuration);
+        rabbitMQClient = RabbitMQClientUtil.createClient(configuration, workload);
 
     }
 
     @Test
-    void createTopicTest() throws Exception {
-        Assertions.assertTrue(kafkaClient.createTopic(workload));
+    void createQueueTest() throws Exception {
+        Assertions.assertTrue(rabbitMQClient.createQueue(workload));
     }
-
-
     @Test
     void publishMessageTest() throws Exception {
-       kafkaClient.publishMessage("JUNIT_TEST_TOPIC","Dude");
+        Assertions.assertTrue(rabbitMQClient.publishMessage("dude","message"));
 
     }
 
     @Test
-    void deleteTopicTest() throws Exception {
-        Assertions.assertTrue(kafkaClient.deleteTopic(workload));
+    void deleteQueueTest() throws Exception {
+        Assertions.assertTrue(rabbitMQClient.deleteQueue(workload));
     }
 
     @AfterAll

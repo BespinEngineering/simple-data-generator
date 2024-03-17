@@ -1,92 +1,90 @@
 package com.pahlsoft.simpledata.engine;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pahlsoft.simpledata.clients.RabbitMQClient;
+import com.pahlsoft.simpledata.clients.RabbitMQClientUtil;
+import com.pahlsoft.simpledata.generator.WorkloadGeneratorJSON;
+import com.pahlsoft.simpledata.interfaces.Engine;
+import com.pahlsoft.simpledata.model.Configuration;
+import com.pahlsoft.simpledata.model.Workload;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pahlsoft.simpledata.clients.KafkaClient;
-import com.pahlsoft.simpledata.clients.KafkaClientUtil;
-import com.pahlsoft.simpledata.generator.WorkloadGeneratorJSON;
-import com.pahlsoft.simpledata.interfaces.Engine;
-import com.pahlsoft.simpledata.model.Configuration;
-import com.pahlsoft.simpledata.model.Workload;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public class RabbitMQWorkloadGeneratorEngine implements Engine {
 
-public class KafkaWorkloadGeneratorEngine implements Engine {
-    static Logger log = LoggerFactory.getLogger(KafkaWorkloadGeneratorEngine.class);
+    static Logger log = LoggerFactory.getLogger(RabbitMQWorkloadGeneratorEngine.class);
 
-    private Workload workload;
+    static private Workload workload;
 
-    private static KafkaClient kafkaClient;
+    static private  RabbitMQClient rabbitMQClient;
 
-    public KafkaWorkloadGeneratorEngine(Configuration configuration, Workload workload) {
+    public RabbitMQWorkloadGeneratorEngine(Configuration configuration, Workload workload) {
         this.workload = workload;
-        this.kafkaClient = KafkaClientUtil.createClient(configuration, workload);
+        this.rabbitMQClient = RabbitMQClientUtil.createClient(configuration, workload);
     }
 
     @Override
     public void run() {
 
         if (log.isInfoEnabled()) {
-            log.info(MessageFormat.format( "Thread[{1}] Initiating Kafka Workload: {0}", workload.getWorkloadName(), Thread.currentThread().getId()));
-            log.info("Thread[" + Thread.currentThread() + "] Workload Topic: " + workload.getTopicName());
+            log.info(MessageFormat.format( "Thread[{1}] Initiating RabbitMQ Workload: {0}", workload.getWorkloadName(), Thread.currentThread().getId()));
+            log.info("Thread[" + Thread.currentThread() + "] Workload Queue: " + workload.getQueueName());
             log.info("Thread[" + Thread.currentThread() + "] Workload Thread Count: " + workload.getWorkloadThreads());
             log.info("Thread[" + Thread.currentThread() + "] Workload Sleep Time (ms): " + workload.getWorkloadSleep());
             log.info("Thread[" + Thread.currentThread() + "] Purge on Start Setting: " + workload.getPurgeOnStart().toString());
-            log.info("Thread[" + Thread.currentThread() + "] Number of Partitions: " + workload.getNumPartitions());
-            log.info("Thread[" + Thread.currentThread() + "] Number of Replicas: " + workload.getReplicaShardCount());
             log.info("Thread[" + Thread.currentThread() + "] Bulk Queue Depth: " + workload.getBackendBulkQueueDepth());
         }
 
-         //////////////////////////
+        //////////////////////////
         // MAIN ENGINE LOOP BELOW
         //////////////////////////
         ObjectMapper objectMapper = new ObjectMapper();
         boolean engineRun = true;
         while (engineRun) {
-                try {
-                    //Bulk Records
-                    if (workload.getBackendBulkQueueDepth() > 0) {
-                        int response = 0;
+            try {
+                //Bulk Records
+                if (workload.getBackendBulkQueueDepth() > 0) {
+                    int response = 0;
 
-                        for (int bulkItems = 0; bulkItems < workload.getBackendBulkQueueDepth(); bulkItems++) {
-                          try {
-                            kafkaClient.publishMessage(workload.getTopicName(), objectMapper.writeValueAsString(WorkloadGeneratorJSON.buildDocument(workload)));
-                          } catch (Exception e) {
+                    for (int bulkItems = 0; bulkItems < workload.getBackendBulkQueueDepth(); bulkItems++) {
+                        try {
+                            rabbitMQClient.publishMessage(workload.getQueueName(), objectMapper.writeValueAsString(WorkloadGeneratorJSON.buildDocument(workload)));
+                        } catch (Exception e) {
                             log.error("Error Inserting Bulk {} Records", workload.getBackendBulkQueueDepth());
                             log.error("HTTP Response Code: {}",response);
                             log.error(e.getMessage());
+                            engineRun=false;
 
-                          }
                         }
+                    }
 
                     // Single Record
-                    } else {
+                } else {
 
-                        try {
-                            kafkaClient.publishMessage(workload.getTopicName(), objectMapper.writeValueAsString(WorkloadGeneratorJSON.buildDocument(workload)));
-                        } catch (Exception e) {
-                            log.error("Error Inserting Single Message");
-                            log.error(e.getMessage());
-
-                        }
+                    try {
+                        rabbitMQClient.publishMessage(workload.getQueueName(), objectMapper.writeValueAsString(WorkloadGeneratorJSON.buildDocument(workload)));
+                    } catch (Exception e) {
+                        log.error("Error Inserting Single Message");
+                        log.error(e.getMessage());
+                        engineRun=false;
 
                     }
-                    Thread.sleep(calculateSleepDuration());
 
-                } catch (Exception e) {
-                    log.error("Error trying to initiate workload Kafka Workload Engine");
-                    log.error(e.getMessage());
                 }
+                Thread.sleep(calculateSleepDuration());
+
+            } catch (Exception e) {
+                log.error("Error trying to initiate workload RabbitMQ Workload Engine");
+                log.error(e.getMessage());
+                engineRun=false;
+            }
 
         }
-
-
-
     }
 
     private int calculateSleepDuration() {
@@ -123,5 +121,4 @@ public class KafkaWorkloadGeneratorEngine implements Engine {
             return value;
         }
     }
-
 }

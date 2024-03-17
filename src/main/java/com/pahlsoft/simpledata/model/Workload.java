@@ -11,6 +11,7 @@ public class Workload {
     private String databaseName;
     private String tableName;
     private String topicName;
+    private String queueName;
     private String backendEngine;
     private List<Map<String,Object>> fields;
     private int backendBulkQueueDepth;
@@ -151,5 +152,13 @@ public class Workload {
 
     public void setReplicationFactor(short replicationFactor) {
         this.replicationFactor = replicationFactor;
+    }
+
+    public String getQueueName() {
+        return queueName;
+    }
+
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
     }
 }

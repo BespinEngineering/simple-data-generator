@@ -18,8 +18,6 @@ public class KafkaClient {
 
     static Logger log = LoggerFactory.getLogger(KafkaClient.class);
 
-    static private Configuration configuration;
-
     static private KafkaProducer kafkaProducer;
 
     static private AdminClient kafkaAdminClient;
@@ -27,8 +25,6 @@ public class KafkaClient {
     static private Properties config = new Properties();
 
      public KafkaClient(Configuration configuration) throws Exception {
-
-         this.configuration = configuration;
 
          config.put("client.id", InetAddress.getLocalHost().getHostName());
          config.put("bootstrap.servers", configuration.getBackendHost()+":" + configuration.getBackendPort());

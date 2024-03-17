@@ -66,7 +66,7 @@ Supported Field Parameters [Documentation](https://github.com/bespinengineering/
 There are few configuration examples in the ./examples directory in this repo, but here is the basic structure.
 Fields listed as <OPTIONAL> can be left blank or omitted altogether. 
 ```
-backendType: <ELASTICSEARCH or CLICKHOUSE>
+backendType: <ELASTICSEARCH or CLICKHOUSE or KAFKA or RABBITMQ>
 backendScheme: <https or https>
 backendHost: <REQUIRED>
 backendPort: <REQUIRED>
@@ -101,7 +101,7 @@ workloads:
 Depending on resource availability, you can have multiple workloads within one configuration.
 
 ```
-backendType: <ELASTICSEARCH or CLICKHOUSE>
+backendType: <ELASTICSEARCH or CLICKHOUSE or KAFKA or RABBITMQ>
 backendScheme: <https or https>
 backendHost: <REQUIRED>
 backendPort: 9243

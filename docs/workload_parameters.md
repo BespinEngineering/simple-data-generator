@@ -84,3 +84,28 @@ workloads:
       - name: address
         type: full_address
 ```
+-------------
+### RabbitMQ Specific Parameters:
+```queueName``` The target topic that will be created if the topic doesn't exist<P>
+
+## Example RabbitMQ Workload
+```
+workloads:
+  - workloadName: dda_customer
+    queueName: SDG.EXAMPLE.QUEUE
+    workloadThreads: 1
+    workloadSleep: 1000
+    peakTime:
+    purgeOnStart: true
+    backendBulkQueueDepth: 0
+    fields:
+      - name: eai
+        type: double
+        range: 0,3300000
+      - name: name
+        type: full_name
+      - name: location
+        type: state
+      - name: address
+        type: full_address
+```
